@@ -7,12 +7,12 @@ if TYPE_CHECKING:
 
 # region 所有抽象运算符类
 
-class Operator(ABC): pass
+class Operator(ABC):
+    operator_type:str
+    operator_name:str
 
 class LogicOperator(Operator):
-    @staticmethod
-    def get_operator_type(self) -> str:
-        return "logic"
+    operator_type:str = "logic"
 
 class UnaryLogicOperator(LogicOperator):
     def __init__(self, a:Operator):
@@ -24,9 +24,7 @@ class BinaryLogicOperator(LogicOperator):
         self.b = b
 
 class ConditionOperator(Operator):
-    @staticmethod
-    def get_operator_type(self) -> str:
-        return "condition"
+    operator_type:str = "condition"
 
 class UnaryConditionOperator(ConditionOperator):
     def __init__(self, a:str):
@@ -38,15 +36,14 @@ class BinaryConditionOperator(ConditionOperator):
         self.b = b
 
 class SpecialConditionOperator(ConditionOperator):
+    operator_type:str = "special_condition"
     pass
 
 # endregion
 
 # region 空运算符
 class VoidOperator(Operator):
-    @staticmethod
-    def get_operator_type(self) -> str:
-        return "void"
+    operator_type:str = "void"
     def __init__(self):
         self.operator_name = "void"
 

@@ -5,7 +5,7 @@ from uuid import uuid4 as uuid
 import inspect
 
 from .runtime import get_context
-from .operators import VoidOperator
+from .ast import VoidOperator
 from .log import *
 
 from .player import TargetPlayer
@@ -13,7 +13,7 @@ from .player import TargetPlayer
 if TYPE_CHECKING:
     from typing import Callable
     from uuid import UUID
-    from operators import Operator
+    from ast import Operator
 
 class EventRegistry():
     def __init__(self):
