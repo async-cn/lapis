@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from uuid import uuid4 as uuid
 
 import inspect
+import json
 
 from .runtime import get_context
 from .ast import VoidOperator
@@ -78,9 +79,12 @@ class EventFilter(): # TODO
     事件过滤器，用于Java端过滤所需的事件
     空过滤器代表接受所有指定event_type的事件
     """
-    def __init__(self, filter_structure:Operator=None):
-        if filter_structure is None:
-            filter_structure = VoidOperator()
+    def __init__(self, filter_ast:Operator=None):
+        if filter_ast is None:
+            filter_ast = VoidOperator()
+        self.filter_ast = filter_ast
+    def to_json(self) -> str:
+        return json.dumps(self.filter_ast.to_node())
 
 class EventSubscription: # TODO
     """
@@ -90,6 +94,9 @@ class EventSubscription: # TODO
     def __init__(self, subscriptions=None):
         if subscriptions is None:
             subscriptions = []
+        self.subscriptions: list = subscriptions
+    def to_json(self) -> str:
+        return json.dumps(self.subscriptions)
 
 class EventListener():
     """
