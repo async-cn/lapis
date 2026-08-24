@@ -10,6 +10,11 @@ if TYPE_CHECKING:
 class Operator(ABC):
     operator_type:str
     operator_name:str
+    def to_node(self) -> dict[str, Any]:
+        return {
+            "op_type":self.operator_type,
+            "op_name":self.operator_name
+        }
 
 class LogicOperator(Operator):
     operator_type:str = "logic"
@@ -17,11 +22,21 @@ class LogicOperator(Operator):
 class UnaryLogicOperator(LogicOperator):
     def __init__(self, a:Operator):
         self.a = a
+    def to_node(self) -> dict[str, Any]:
+        return {**super().to_node(), 'a': self.a.to_node()}
 
 class BinaryLogicOperator(LogicOperator):
     def __init__(self, a:Operator, b:Operator):
         self.a = a
         self.b = b
+    def to_node(self) -> dict[str, Any]:
+        return {**super().to_node(), 'a': self.a.to_node(), 'b': self.b.to_node()}
+
+class MultiLogicOperator(LogicOperator):
+    def __init__(self, *operands:Operator):
+        self.operands = operands
+    def to_node(self) -> dict[str, Any]:
+        return {**super().to_node(), 'operands': [op.to_node() for op in self.operands]}
 
 class ConditionOperator(Operator):
     operator_type:str = "condition"
@@ -29,11 +44,15 @@ class ConditionOperator(Operator):
 class UnaryConditionOperator(ConditionOperator):
     def __init__(self, a:str):
         self.a = a
+    def to_node(self) -> dict[str, Any]:
+        return {**super().to_node(), 'a': self.a.to_node()}
 
 class BinaryConditionOperator(ConditionOperator):
     def __init__(self, a:str, b:Any):
         self.a = a
         self.b = b
+    def to_node(self) -> dict[str, Any]:
+        return {**super().to_node(), 'a': self.a.to_node(), 'b': self.b.to_node()}
 
 class SpecialConditionOperator(ConditionOperator):
     operator_type:str = "special_condition"
@@ -54,14 +73,14 @@ class Not(UnaryLogicOperator):
         super().__init__(a)
         self.operator_name = "not"
 
-class And(BinaryLogicOperator):
-    def __init__(self, a, b):
-        super().__init__(a, b)
+class And(MultiLogicOperator):
+    def __init__(self, *operands):
+        super().__init__(*operands)
         self.operator_name = "and"
 
-class Or(BinaryLogicOperator):
-    def __init__(self, a, b):
-        super().__init__(a, b)
+class Or(MultiLogicOperator):
+    def __init__(self, *operands):
+        super().__init__(*operands)
         self.operator_name = "or"
 
 class Xor(BinaryLogicOperator):
@@ -111,11 +130,15 @@ class ObjectMatch(SpecialConditionOperator):
     def __init__(self, pattern:dict):
         self.pattern = pattern
         self.operator_name = "object_match"
+    def to_node(self) -> dict[str, Any]:
+        return {**super().to_node(), 'pattern': self.pattern}
 
 class ArrayInclude(SpecialConditionOperator):
     def __init__(self, path:str, contents:list):
         self.path = path
         self.contents = contents
         self.operator_name = "array_include"
+    def to_node(self) -> dict[str, Any]:
+        return {**super().to_node(), 'path': self.path, 'contents': self.contents}
 
 # endregion
