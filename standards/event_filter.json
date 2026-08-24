@@ -1,0 +1,31 @@
+{
+    "op_type": "logic",
+    "op_name": "and",
+    "operands": [
+        {
+            "op_type": "condition",
+            "op_name": "le",
+            "a": "player.health",
+            "b": 5
+        },
+        {
+            "op_type": "logic",
+            "op_name": "not",
+            "a": {
+                "op_type": "special_condition",
+                "op_name": "object_match",
+                "pattern": {
+                    "player": {
+                        "nbt": {
+                            "Inventory": [
+                                {
+                                    "id": "minecraft:totem_of_undying"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

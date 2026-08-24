@@ -1,5 +1,5 @@
 from __future__ import annotations
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -52,7 +52,7 @@ class BinaryConditionOperator(ConditionOperator):
         self.a = a
         self.b = b
     def to_node(self) -> dict[str, Any]:
-        return {**super().to_node(), 'a': self.a.to_node(), 'b': self.b.to_node()}
+        return {**super().to_node(), 'a': self.a, 'b': self.b}
 
 class SpecialConditionOperator(ConditionOperator):
     operator_type:str = "special_condition"
