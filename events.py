@@ -7,14 +7,14 @@ import inspect
 
 from .log import *
 
-_event_listeners:dict[str,EventListener] = {}
+_listeners:dict[str,EventListener] = {}
 
 class Event(): # TODO
     """
     接收到Java端发送的事件数据时，自动将JSON转换为Event对象
     """
     event_type: str = ""
-    event_listener_uuid = None
+    listener_uuid = None
     data: dict = {}
     ... # 时间等其他元信息
     pass
@@ -32,7 +32,7 @@ class EventSubscription: # TODO
     事件订阅，用于Java端筛选附带在指定事件中发送的信息
     空订阅代表事件触发时发回全部事件数据
     """
-    def __init__(self, subscriptionStructure:dict={}):
+    def __init__(self, subscriptions:list[str]=[]):
         pass
 
 class EventListener():
@@ -54,34 +54,34 @@ def register_event_listener(event_listener:EventListener) -> None:
         debug(f"{event_listener} is not registered: no handler")
         return
     ... # TODO 向Java端发送注册指定EventListener的指令，附带JSON化的EventFilter和EventSubscription
-    _event_listeners[str(event_listener.uuid)]=event_listener
+    _listeners[str(event_listener.uuid)]=event_listener
     debug(f"{event_listener} registered")
 
 def unregister_event_listener(uuid:UUID) -> bool:
-    if not str(uuid) in _event_listeners:
+    if not str(uuid) in _listeners:
         error(f"Failed to unregister EventListener: Eventlister(#{str(uuid)}) is not found")
         return False
     ... # TODO 向Java端发送解除指定EventListener的指令
-    del _event_listeners[str(uuid)]
+    del _listeners[str(uuid)]
     debug(f"{uuid} unregistered")
     return True
 
-def on(event_type:str, event_filter:dict=None, subscription:dict=None):
+def on(event_type:str, event_filter:dict=None, event_subscription:list=None):
     """
     装饰器，对事件handler函数使用，原始handler函数应接受一个Event参数
     :param event_type: 事件类型
     :param event_filter: 事件过滤器，为空则接受所有指定类型的事件
-    :param subscription: 订阅事件信息，为空则返回事件的全部信息
+    :param event_subscription: 订阅事件信息，为空则返回事件的全部信息
     :return: 事件监听器UUID
     """
     if event_filter is None:
         event_filter = {}
-    if subscription is None:
-        subscription = {}
+    if event_subscription is None:
+        event_subscription = []
     event_filter = EventFilter(event_filter)
-    subscription = EventSubscription(subscription)
+    event_subscription = EventSubscription(event_subscription)
     def decorator(func):
-        event_listener = EventListener(func, event_type, event_filter, subscription)
+        event_listener = EventListener(func, event_type, event_filter, event_subscription)
         register_event_listener(event_listener)
         def wrapper() -> UUID:
            return event_listener.uuid
@@ -94,11 +94,11 @@ async def dispatch(event:Event) -> None:
     :param event: 事件
     :return:
     """
-    event_listener_uuid:str = str(event.event_listener_uuid)
-    if event_listener_uuid not in _event_listeners:
+    event_listener_uuid:str = str(event.listener_uuid)
+    if event_listener_uuid not in _listeners:
         error(f"Undefined EventListener UUID: {event_listener_uuid}")
         return
-    event_listener = _event_listeners[event_listener_uuid]
+    event_listener = _listeners[event_listener_uuid]
     result = event_listener.handler(event)
     if inspect.isawaitable(result):
         await result
