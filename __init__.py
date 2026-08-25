@@ -6,11 +6,12 @@ from .runtime import (
     reset_context,
 )
 
-from .client import create_client
+from .client import LapisClient
 from .events import EventRegistry
+from .config import Config
+from .message import init_message_dispatcher
 
 _runtimes = {}
-
 
 def init(package_name: str) -> LapisContext:
 
@@ -20,17 +21,15 @@ def init(package_name: str) -> LapisContext:
         )
 
     runtime = PackageRuntime(package_name)
-
     context = LapisContext(
         package_name=package_name,
-        client=create_client(),
+        client=LapisClient(Config.SERVER_ADDR, Config.SERVER_PORT, package_name),
         event_registry=EventRegistry(),
     )
-
     runtime.context = context
 
+    init_message_dispatcher()
+
     _runtimes[package_name] = runtime
-
     set_context(context)
-
     return context

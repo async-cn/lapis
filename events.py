@@ -1,20 +1,24 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+from functools import wraps
 from uuid import uuid4 as uuid
 
 import inspect
 import json
+import asyncio
 
 from .runtime import get_context
 from .ast import VoidOperator
 from .log import *
+from .message import message_handler
 
 from .player import TargetPlayer
 
 if TYPE_CHECKING:
     from typing import Callable
     from uuid import UUID
-    from ast import Operator
+    from .ast import Operator
+    from .message import Message
 
 class EventRegistry():
     def __init__(self):
@@ -68,9 +72,9 @@ class Event(): # TODO
     接收到Java端发送的事件数据时，自动将JSON转换为Event对象
     """
     def __init__(self, raw_data:dict) -> None:
-        self.event_type: str = ""
-        self.listener_uuid: str = ""
-        self.data: dict = {}
+        self.event_type: str = raw_data["event_type"]
+        self.listener_uuid: str = raw_data["listener_uuid"]
+        self.data: dict = raw_data["data"]
     def get_target_player(self) -> TargetPlayer:
         return TargetPlayer(self.data["player"]["uuid"])
 
@@ -129,7 +133,14 @@ def on(event_type:str, event_filter:Operator=None, event_subscription:list=None)
     def decorator(func):
         event_listener = EventListener(func, event_type, event_filter, event_subscription)
         get_context().event_registry.register_listener(event_listener)
-        def wrapper() -> UUID:
-           return event_listener.uuid
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+           return func(*args, **kwargs)
         return wrapper
     return decorator
+
+@message_handler("event")
+def event_dispatcher(message:Message) -> bool:
+    event = Event(message.data)
+    asyncio.run(get_context().event_registry.dispatch(event))
+    return True

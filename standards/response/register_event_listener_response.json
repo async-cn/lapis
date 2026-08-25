@@ -1,0 +1,9 @@
+{
+    "response_type": "register_event_listener_response",
+    "id": 1,
+    "ok": true,
+    "data": {
+        "listener_uuid": "20a08fd9-0fd1-4793-8aaf-e3086d3c3959",
+        "state": "ok"
+    }
+}

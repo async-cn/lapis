@@ -1,0 +1,8 @@
+{
+    "command_type": "handshake",
+    "id": 1,
+    "data": {
+        "package_name": "MyPackage",
+        "password": "pw114514"
+    }
+}

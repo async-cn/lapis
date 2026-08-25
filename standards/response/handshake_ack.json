@@ -1,0 +1,6 @@
+{
+    "response_type": "handshake_ack",
+    "id": 1,
+    "ok": true,
+    "data": {}
+}
