@@ -5,7 +5,6 @@ from uuid import uuid4 as uuid
 
 import inspect
 import json
-import asyncio
 
 from .runtime import get_context
 from .ast import VoidOperator
@@ -23,28 +22,56 @@ if TYPE_CHECKING:
 class EventRegistry():
     def __init__(self):
         self._registry:dict[str, EventListener] = {}
-        self._context = get_context()
+        self._registration_queue:list[EventListener] = []
 
-    def register_listener(self, event_listener: EventListener) -> None:
+    def pre_register_listener(self, event_listener: EventListener) -> None:
         """
-        注册事件监听器
+        登记事件监听器，但不注册
         :param event_listener: 事件监听器
         :return:
         """
-        if not hasattr(event_listener, 'handler'):
-            debug(f"{event_listener} is not registered: no handler")
-            return
-        ...  # TODO 向Java端发送注册指定EventListener的指令，附带JSON化的EventFilter和EventSubscription，这里要用到self._context.client.send_command
-        context = get_context()
-        context.client.command("register_event_listener", {
-            "package_name": context.package_name,
-            "listener_uuid": str(event_listener.uuid),
-            "event_type": event_listener.event_type,
-            "filter": event_listener.event_filter.to_json(),
-            "subscription": event_listener.subscription.to_json()
-        })
-        self._registry[str(event_listener.uuid)] = event_listener
-        debug(f"{event_listener} registered")
+        self._registration_queue.append(event_listener)
+        debug(f"{event_listener} pre registered")
+
+    async def register_all(self) -> None:
+
+        for event_listener in self._registration_queue:
+            response = await get_context().client.command(
+                "register_event_listener",
+                {
+                    "package_name": get_context().package_name,
+                    "listener_uuid": str(event_listener.uuid),
+                    "event_type": event_listener.event_type,
+                    "filter": event_listener.event_filter.to_json(),
+                    "subscription": event_listener.subscription.to_json(),
+                },
+            )
+            if response["response_type"] != (
+                "register_event_listener_response"
+            ):
+                raise RuntimeError(
+                    "Unexpected response type: "
+                    f"{response['response_type']}"
+                )
+
+            data = response["data"]
+            if data["listener_uuid"] != (
+                str(event_listener.uuid)
+            ):
+                raise RuntimeError(
+                    "Listener UUID mismatch"
+                )
+            if data["state"] != "ok":
+                raise RuntimeError(
+                    "Failed to register event listener: "
+                    f"{data['state']}"
+                )
+
+            self._registry[str(event_listener.uuid)] = event_listener
+            debug(
+                f"{event_listener} registered"
+            )
+        self._registration_queue = []
 
     def unregister_listener(self, uuid:UUID) -> bool:
         """
@@ -140,7 +167,7 @@ def on(event_type:str, event_filter:Operator=None, event_subscription:list=None)
     event_subscription = EventSubscription(event_subscription)
     def decorator(func):
         event_listener = EventListener(func, event_type, event_filter, event_subscription)
-        get_context().event_registry.register_listener(event_listener)
+        get_context().event_registry.pre_register_listener(event_listener)
         @wraps(func)
         def wrapper(*args, **kwargs):
            return func(*args, **kwargs)
@@ -148,7 +175,7 @@ def on(event_type:str, event_filter:Operator=None, event_subscription:list=None)
     return decorator
 
 @message_handler("event")
-def event_dispatcher(message:Message) -> bool:
+async def event_dispatcher(message: Message) -> bool:
     event = Event(message.data)
-    asyncio.run(get_context().event_registry.dispatch(event))
+    await get_context().event_registry.dispatch(event)
     return True

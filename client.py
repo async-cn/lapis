@@ -291,7 +291,7 @@ class LapisClient:
             return response
 
         finally:
-            await self._pending.pop(command_id, None)
+            r = self._pending.pop(command_id, None)
 
     # ============================================================
     # Packet Sending
