@@ -35,6 +35,14 @@ class EventRegistry():
             debug(f"{event_listener} is not registered: no handler")
             return
         ...  # TODO 向Java端发送注册指定EventListener的指令，附带JSON化的EventFilter和EventSubscription，这里要用到self._context.client.send_command
+        context = get_context()
+        context.client.command("register_event_listener", {
+            "package_name": context.package_name,
+            "listener_uuid": str(event_listener.uuid),
+            "event_type": event_listener.event_type,
+            "filter": event_listener.event_filter.to_json(),
+            "subscription": event_listener.subscription.to_json()
+        })
         self._registry[str(event_listener.uuid)] = event_listener
         debug(f"{event_listener} registered")
 
