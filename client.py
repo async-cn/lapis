@@ -291,6 +291,7 @@ class LapisClient:
             return response
 
         finally:
+            # noinspection PyUnusedLocal
             r = self._pending.pop(command_id, None)
 
     # ============================================================
@@ -516,10 +517,7 @@ class LapisClient:
 
         ok = response.get("ok")
 
-        if ok is True:
-            future.set_result(response)
-
-        elif ok is False:
+        if not ok:
             future.set_exception(
                 LapisCommandError(
                     response_type=response_type,
@@ -527,13 +525,9 @@ class LapisClient:
                     data=response.get("data"),
                 )
             )
+            return
 
-        else:
-            future.set_exception(
-                LapisProtocolError(
-                    "Response field 'ok' must be boolean"
-                )
-            )
+        future.set_result(response)
 
     # ============================================================
     # Message Handler
@@ -588,9 +582,7 @@ class LapisClient:
             )
 
         self._fail_pending_requests(
-            LapisConnectionError(
-                "Connection to Java server was lost"
-            )
+            exception
         )
 
     # ============================================================

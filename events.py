@@ -1,10 +1,9 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from functools import wraps
-from uuid import uuid4 as uuid
+from uuid import uuid4
 
 import inspect
-import json
 
 from .runtime import get_context
 from .ast import VoidOperator
@@ -19,7 +18,7 @@ if TYPE_CHECKING:
     from .ast import Operator
     from .message import Message
 
-class EventRegistry():
+class EventRegistry:
     def __init__(self):
         self._registry:dict[str, EventListener] = {}
         self._registration_queue:list[EventListener] = []
@@ -42,8 +41,8 @@ class EventRegistry():
                     "package_name": get_context().package_name,
                     "listener_uuid": str(event_listener.uuid),
                     "event_type": event_listener.event_type,
-                    "filter": event_listener.event_filter.to_json(),
-                    "subscription": event_listener.subscription.to_json(),
+                    "filter": event_listener.event_filter.to_nodes(),
+                    "subscription": event_listener.subscription.to_list(),
                 },
             )
             if response["response_type"] != (
@@ -80,7 +79,7 @@ class EventRegistry():
         :return:
         """
         if not str(uuid) in self._registry:
-            error(f"Failed to unregister EventListener: Eventlister(#{str(uuid)}) is not found")
+            error(f"Failed to unregister EventListener: EventLister(#{str(uuid)}) is not found")
             return False
         ... # TODO 向Java端发送解除指定EventListener的指令
         del self._registry[str(uuid)]
@@ -102,7 +101,7 @@ class EventRegistry():
         if inspect.isawaitable(result):
             await result
 
-class Event(): # TODO
+class Event:
     """
     接收到Java端发送的事件数据时，自动将JSON转换为Event对象
     """
@@ -113,7 +112,7 @@ class Event(): # TODO
     def get_target_player(self) -> TargetPlayer:
         return TargetPlayer(self.data["player"]["uuid"])
 
-class EventFilter(): # TODO
+class EventFilter:
     """
     事件过滤器，用于Java端过滤所需的事件
     空过滤器代表接受所有指定event_type的事件
@@ -122,10 +121,10 @@ class EventFilter(): # TODO
         if filter_ast is None:
             filter_ast = VoidOperator()
         self.filter_ast = filter_ast
-    def to_json(self):
+    def to_nodes(self):
         return self.filter_ast.to_node()
 
-class EventSubscription: # TODO
+class EventSubscription:
     """
     事件订阅，用于Java端筛选附带在指定事件中发送的信息
     空订阅代表事件触发时发回全部事件数据
@@ -134,10 +133,10 @@ class EventSubscription: # TODO
         if subscriptions is None:
             subscriptions = []
         self.subscriptions: list = subscriptions
-    def to_json(self):
+    def to_list(self):
         return self.subscriptions
 
-class EventListener():
+class EventListener:
     """
     事件监听器
     """
@@ -146,7 +145,7 @@ class EventListener():
         self.handler = handler
         self.event_filter = event_filter
         self.subscription = subscription
-        self.uuid:UUID = uuid()
+        self.uuid:UUID = uuid4()
         pass
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.event_type}#{str(self.uuid)})"

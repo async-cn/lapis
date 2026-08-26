@@ -11,6 +11,7 @@ _current_context = ContextVar(
     default=None,
 )
 
+
 class Runtime:
 
     def __init__(self, package_name):
@@ -24,16 +25,15 @@ class Runtime:
         # 统一注册 Listener
         await self.context.event_registry.register_all()
         # 长期运行
-        await self.run()
+        await run()
 
+async def run() -> None:
 
-    async def run(self) -> None:
+    # 只要 Client 的 reader_task 还活着，
+    # Runtime 就应该持续存在。
 
-        # 只要 Client 的 reader_task 还活着，
-        # Runtime 就应该持续存在。
-
-        while True:
-            await asyncio.sleep(3600)
+    while True:
+        await asyncio.sleep(3600)
 
 def get_context() -> LapisContext|None:
     context = _current_context.get()

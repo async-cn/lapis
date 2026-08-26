@@ -5,7 +5,8 @@
         "listener_uuid": "",
         "data": {
             "player": {
-                "nbt": {} //...
+                "nbt": {}, //...
+                "uuid": "..."
             },
             "block": {
                 "nbt": {} //...
