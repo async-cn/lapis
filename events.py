@@ -122,8 +122,8 @@ class EventFilter(): # TODO
         if filter_ast is None:
             filter_ast = VoidOperator()
         self.filter_ast = filter_ast
-    def to_json(self) -> str:
-        return json.dumps(self.filter_ast.to_node())
+    def to_json(self):
+        return self.filter_ast.to_node()
 
 class EventSubscription: # TODO
     """
@@ -134,8 +134,8 @@ class EventSubscription: # TODO
         if subscriptions is None:
             subscriptions = []
         self.subscriptions: list = subscriptions
-    def to_json(self) -> str:
-        return json.dumps(self.subscriptions)
+    def to_json(self):
+        return self.subscriptions
 
 class EventListener():
     """
