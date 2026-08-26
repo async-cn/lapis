@@ -475,7 +475,14 @@ class LapisClient:
         # 直接交给上层。
 
         if self._message_handler is not None:
+            asyncio.create_task(self._safe_handler(packet))
+
+    async def _safe_handler(self, packet):
+        try:
             await self._message_handler(packet)
+        except Exception:
+            import traceback
+            traceback.print_exc()
 
     # ============================================================
     # Response
