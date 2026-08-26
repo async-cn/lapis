@@ -1,0 +1,15 @@
+// Event: PlayerInteract 玩家左键/右键方块
+{
+    "data": {
+        "interaction_type": "left_click", // or right_click
+        "player": {
+            // ...
+        },
+        "block": {
+            "block_id": "chest",
+            "block_state": {}, // ...
+            "pos": [11, 45, 14],
+            "nbt": {} // ...
+        }
+    }
+}

@@ -9,7 +9,8 @@ from .runtime import (
 from .client import LapisClient
 from .events import EventRegistry
 from .config import Config
-from .message import init_message_dispatcher
+from .server_message import init_message_dispatcher
+from .database import Database
 
 import asyncio
 
@@ -27,6 +28,7 @@ def init(package_name: str) -> LapisContext:
         package_name=package_name,
         client=LapisClient(Config.SERVER_ADDR, Config.SERVER_PORT, package_name),
         event_registry=EventRegistry(),
+        database = Database(package_name),
     )
     runtime.context = context
     _runtimes[package_name] = runtime

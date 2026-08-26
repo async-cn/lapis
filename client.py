@@ -35,6 +35,15 @@ class LapisCommandError(LapisClientError):
             f"data={data!r}"
         )
 
+class Response:
+    response_type: str
+    ok: bool
+    data: dict[str, Any]
+
+    def __init__(self, raw_data: dict[str, Any]):
+        self.response_type = raw_data["response_type"]
+        self.ok = raw_data["ok"]
+        self.data = raw_data["data"]
 
 class LapisClient:
     """
@@ -219,33 +228,14 @@ class LapisClient:
         data: dict[str, Any] | None = None,
         *,
         timeout: float | None = 10,
-    ) -> dict[str, Any]:
+    ) -> Response:
+
         """
-        向 Java 端发送一个 command，并等待对应 response。
-
-        例如：
-
-            await client.command(
-                "register_event_listener",
-                {...}
-            )
-
-        会自动生成：
-
-            {
-                "command_type": "register_event_listener",
-                "id": 2,
-                "data": {...}
-            }
-
-        然后等待：
-
-            {
-                "response_type": "...",
-                "id": 2,
-                "ok": true,
-                "data": {...}
-            }
+        发送指令
+        :param command_type: 指令类型
+        :param data: 指令数据
+        :param timeout: 响应超时限制
+        :return:
         """
 
         if not self._connected.is_set():
@@ -266,9 +256,7 @@ class LapisClient:
         command_id = self._request_id
 
         loop = asyncio.get_running_loop()
-
         future: asyncio.Future = loop.create_future()
-
         self._pending[command_id] = future
 
         packet = {
@@ -283,16 +271,39 @@ class LapisClient:
             if timeout is None:
                 response = await future
             else:
-                response = await asyncio.wait_for(
-                    future,
-                    timeout,
-                )
+                response = await asyncio.wait_for(future, timeout)
 
-            return response
+            return Response(response)
 
         finally:
             # noinspection PyUnusedLocal
             r = self._pending.pop(command_id, None)
+
+
+    async def send_message_response(
+            self,
+            message_response_type: str,
+            data: dict,
+    ) -> None:
+        """
+        发送 message_response
+        :param message_response_type:
+        :param data:
+        :return:
+        """
+
+        if not self._connected.is_set():
+            raise LapisConnectionError(
+                "Client is not connected"
+            )
+
+        packet = {
+            "message_response_type": message_response_type,
+            "data": data,
+        }
+
+        await self._send_packet(packet)
+
 
     # ============================================================
     # Packet Sending

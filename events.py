@@ -8,15 +8,15 @@ import inspect
 from .runtime import get_context
 from .ast import VoidOperator
 from .log import *
-from .message import message_handler
+from .server_message import message_handler
 
 from .player import TargetPlayer
 
 if TYPE_CHECKING:
     from typing import Callable
     from uuid import UUID
-    from .ast import Operator
-    from .message import Message
+    from .ast import ASTOperator
+    from .server_message import ServerMessage
 
 class EventRegistry:
     def __init__(self):
@@ -45,21 +45,15 @@ class EventRegistry:
                     "subscription": event_listener.subscription.to_list(),
                 },
             )
-            if response["response_type"] != (
-                "register_event_listener_response"
-            ):
+            if response["response_type"] != "register_event_listener_response":
                 raise RuntimeError(
                     "Unexpected response type: "
                     f"{response['response_type']}"
                 )
 
             data = response["data"]
-            if data["listener_uuid"] != (
-                str(event_listener.uuid)
-            ):
-                raise RuntimeError(
-                    "Listener UUID mismatch"
-                )
+            if data["listener_uuid"] != (str(event_listener.uuid)):
+                raise RuntimeError("Listener UUID mismatch")
             if data["state"] != "ok":
                 raise RuntimeError(
                     "Failed to register event listener: "
@@ -72,7 +66,7 @@ class EventRegistry:
             )
         self._registration_queue = []
 
-    def unregister_listener(self, uuid:UUID) -> bool:
+    async def unregister_listener(self, uuid:UUID) -> bool:
         """
         卸载事件监听器
         :param uuid: 事件监听器UUID
@@ -81,7 +75,12 @@ class EventRegistry:
         if not str(uuid) in self._registry:
             error(f"Failed to unregister EventListener: EventLister(#{str(uuid)}) is not found")
             return False
-        ... # TODO 向Java端发送解除指定EventListener的指令
+        await get_context().client.command(
+            "unregister_event_listener",
+            {
+                "listener_uuid": str(uuid)
+            }
+        )
         del self._registry[str(uuid)]
         debug(f"{uuid} unregistered")
         return True
@@ -97,9 +96,15 @@ class EventRegistry:
             error(f"Undefined EventListener UUID: {event_listener_uuid}")
             return
         event_listener = self._registry[event_listener_uuid]
-        result = event_listener.handler(event)
-        if inspect.isawaitable(result):
-            await result
+        r = event_listener.handler(event)
+        result:None|bool = (await r) if inspect.isawaitable(r) else r
+        if event_listener.proxy:
+            await get_context().client.send_message_response(
+                "event_proxy_result",
+                {
+                    "continue": result
+                }
+            )
 
 class Event:
     """
@@ -117,7 +122,7 @@ class EventFilter:
     事件过滤器，用于Java端过滤所需的事件
     空过滤器代表接受所有指定event_type的事件
     """
-    def __init__(self, filter_ast:Operator=None):
+    def __init__(self, filter_ast:ASTOperator=None):
         if filter_ast is None:
             filter_ast = VoidOperator()
         self.filter_ast = filter_ast
@@ -140,22 +145,30 @@ class EventListener:
     """
     事件监听器
     """
-    def __init__(self, handler:Callable, event_type:str, event_filter:EventFilter, subscription:EventSubscription):
+    def __init__(self,
+            handler:Callable,
+            event_type:str,
+            event_filter:EventFilter,
+            subscription:EventSubscription,
+            proxy:bool=False
+        ):
         self.event_type = event_type
         self.handler = handler
         self.event_filter = event_filter
         self.subscription = subscription
         self.uuid:UUID = uuid4()
-        pass
+        self.proxy: bool = proxy
+
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.event_type}#{str(self.uuid)})"
 
-def on(event_type:str, event_filter:Operator=None, event_subscription:list=None):
+def on(event_type:str, event_filter:ASTOperator=None, event_subscription:list=None, proxy:bool=False):
     """
     装饰器，对事件handler函数使用，原始handler函数应接受一个Event参数
     :param event_type: 事件类型
     :param event_filter: 事件过滤器，为空则接受所有指定类型的事件
     :param event_subscription: 订阅事件信息，为空则返回事件的全部信息
+    :param proxy: 是否使用事件代理模式
     :return: 事件监听器UUID
     """
     if event_filter is None:
@@ -164,8 +177,8 @@ def on(event_type:str, event_filter:Operator=None, event_subscription:list=None)
         event_subscription = []
     event_filter = EventFilter(event_filter)
     event_subscription = EventSubscription(event_subscription)
-    def decorator(func):
-        event_listener = EventListener(func, event_type, event_filter, event_subscription)
+    def decorator(func:Callable[[Event], None|bool]): # proxy为true时返回类型应为bool
+        event_listener = EventListener(func, event_type, event_filter, event_subscription, proxy)
         get_context().event_registry.pre_register_listener(event_listener)
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -174,7 +187,7 @@ def on(event_type:str, event_filter:Operator=None, event_subscription:list=None)
     return decorator
 
 @message_handler("event")
-async def event_dispatcher(message: Message) -> bool:
+async def event_dispatcher(message: ServerMessage) -> bool:
     event = Event(message.data)
     await get_context().event_registry.dispatch(event)
     return True
