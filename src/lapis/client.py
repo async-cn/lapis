@@ -210,7 +210,7 @@ class LapisClient:
         # 这里额外检查 response_type，
         # 防止 Java 返回了错误类型的 response。
 
-        if response["response_type"] != "handshake_ack":
+        if response.response_type != "handshake_ack":
             raise LapisProtocolError(
                 "Unexpected handshake response type: "
                 f"{response['response_type']!r}"
