@@ -9,14 +9,17 @@ from .runtime import get_context
 from .ast import VoidOperator
 from .log import *
 from .server_message import message_handler
+from .utils import dict_trans
 
 from .player import TargetPlayer
+from .block import create_block
 
 if TYPE_CHECKING:
     from typing import Callable
     from uuid import UUID
     from .ast import ASTOperator
     from .server_message import ServerMessage
+    from .block import Block
 
 class EventRegistry:
     def __init__(self):
@@ -48,7 +51,7 @@ class EventRegistry:
             if response.response_type != "register_event_listener_response":
                 raise RuntimeError(
                     "Unexpected response type: "
-                    f"{response['response_type']}"
+                    f"{response.data['response_type']}"
                 )
 
             data = response.data
@@ -116,6 +119,16 @@ class Event:
         self.data: dict = raw_data["data"]
     def get_target_player(self) -> TargetPlayer:
         return TargetPlayer(self.data["player"]["uuid"])
+    def get_block(self) -> Block:
+        return create_block(
+            **dict_trans(self.data["block"], {
+                "id": "block_id",
+                "world": "world",
+                "pos": "pos_raw",
+                "state": "block_state",
+                "nbt": "nbt_raw"
+            })
+        )
 
 class EventFilter:
     """

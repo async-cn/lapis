@@ -1,3 +1,6 @@
+from typing import Any
+
+
 class Vector:
     x: float
     y: float
@@ -30,3 +33,13 @@ class Vector:
 
     def raw(self) -> list:
         return [self.x, self.y, self.z]
+
+def dict_trans(
+        d: dict[str, Any],
+        map: dict[str, str]
+):
+    result = {}
+    for key, value in d.items():
+        if key in map:
+            result[map[key]] = value
+    return result
