@@ -380,10 +380,10 @@ class Table:
     def __init__(
         self,
         table_name: str,
-        columns: list[Column],
+        *columns: Column,
     ):
         self.table_name = table_name
-        self.columns = columns
+        self.columns = list(columns)
         self.database = None
 
     # ========================================================
@@ -1116,7 +1116,7 @@ class Column:
 # ============================================================
 
 def init_database(
-    tables: list[Table],
+    *tables: Table,
 ) -> Database:
     """
     初始化当前 Runtime 的 Database，

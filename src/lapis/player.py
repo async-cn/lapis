@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from .runtime import get_context
+from .message import format_message
 
 if TYPE_CHECKING:
     from .item import ItemStack
@@ -22,10 +23,38 @@ class TargetPlayer(Player):
             "send_message",
             {
                 "player_uuid": self.uuid,
-                "message_type": "pure_text" if isinstance(message, str) else "text_component",
-                "message_content": message
+                **format_message(message)
             }
         )).ok
+
+    async def ask_input(self, prompt:str = None, timeout:float = -1) -> str:
+        """
+        请求玩家输入
+
+        :param prompt: 提示消息，None表示无提示
+        :param timeout: 时间限制，-1表示无时间限制，超时则抛出TimeoutError异常
+        :return: 输入结果
+        """
+        result = await get_context().client.command(
+            "ask_input",
+            {
+                "player_uuid": self.uuid,
+                "prompt": prompt is not None,
+                **(
+                    format_message(prompt)
+                    if prompt is not None
+                    else {
+                        "message_type": "",
+                        "message_content": ""
+                    }
+                )
+            }
+        )
+
+        if result.data["result_type"] == "timeout":
+            raise TimeoutError("ask_input exceeded the timeout limit")
+
+        return result.data["result_content"]
 
     async def give_item(self, item_stack:ItemStack) -> None:
         """
