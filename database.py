@@ -1176,13 +1176,8 @@ def get_table(
     table_name: str,
 ) -> Table:
     """
-    获取当前 Runtime 的 Database 中指定名称的 Table。
-
-    这是同步方法。
-
-    示例：
-
-        users = Database.get_table("users")
+    获取数据库中指定的表
+    :param table_name: 表名
     """
 
     database = get_context().database

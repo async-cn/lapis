@@ -9,8 +9,8 @@ if TYPE_CHECKING:
 
 class Block:
     block_id: str
-    pos: BlockPos
     block_state: dict[str, Any]
+    pos: BlockPos
     nbt: NBT
 
     def __init__(
@@ -32,11 +32,16 @@ class Block:
         self.nbt = nbt
 
 async def set_block(block: Block) -> bool:
+    """
+    设置方块
+    :param block: 方块，其中维度建议使用world.WORLDS
+    :return:
+    """
     return (await get_context().client.command(
         "set_block",
         {
             "block_id": block.block_id,
-            "pos": block.pos.raw(),
+            **block.pos.raw(),
             "block_state": block.block_state,
             "nbt": block.nbt.raw()
         }

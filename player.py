@@ -13,6 +13,11 @@ class TargetPlayer(Player):
         self.uuid=uuid
 
     async def send_message(self, message:str|dict) -> bool:
+        """
+        向玩家发送消息
+        :param message: 消息类型，若为字符串则消息为纯文本，若为字典则消息为文本组件
+        :return:
+        """
         return (await get_context().client.command(
             "send_message",
             {
@@ -23,6 +28,11 @@ class TargetPlayer(Player):
         )).ok
 
     async def give_item(self, item_stack:ItemStack) -> None:
+        """
+        给予玩家物品
+        :param item_stack: 物品堆
+        :return:
+        """
         await get_context().client.command(
             "give_item",
             {
@@ -32,6 +42,11 @@ class TargetPlayer(Player):
         )
 
     async def take_item(self, item_stack:ItemStack) -> bool:
+        """
+        拿走玩家物品
+        :param item_stack: 物品堆
+        :return: 是否成功
+        """
         return (await get_context().client.command(
             "take_item",
             {
@@ -41,6 +56,12 @@ class TargetPlayer(Player):
         )).data["is_success"]
 
     async def set_custom_data(self, key:str, value:str|int|float) -> None:
+        """
+        设置自定义数据
+        :param key: 自定义数据键
+        :param value: 自定义数据值
+        :return:
+        """
         await get_context().client.command(
             "set_custom_data",
             {
@@ -51,3 +72,59 @@ class TargetPlayer(Player):
                 "data_value": value
             }
         )
+
+    async def money_query(self) -> float:
+        """
+        查询eco余额
+        :return:
+        """
+        return (await get_context().client.command(
+            "money_query",
+            {
+                "player_uuid": self.uuid,
+            }
+        )).data["balance"]
+
+    async def money_give(self, amount:float) -> None:
+        """
+        给予eco
+        :param amount: 金额
+        :return:
+        """
+        await get_context().client.command(
+            "money_give",
+            {
+                "player_uuid": self.uuid,
+                "amount": amount
+            }
+        )
+
+    async def money_set(self, amount:float) -> None:
+        """
+        设置eco
+        :param amount: 金额
+        :return:
+        """
+        await get_context().client.command(
+            "money_set",
+            {
+                "player_uuid": self.uuid,
+                "amount": amount
+            }
+        )
+
+    async def money_take(self, amount:float, force:bool=False) -> None:
+        """
+        扣除eco
+        :param amount: 金额
+        :param force: 无视余额限制强制扣除
+        :return: 是否扣款成功
+        """
+        return (await get_context().client.command(
+            "money_take",
+            {
+                "player_uuid": self.uuid,
+                "amount": amount,
+                "force": force
+            }
+        )).data["is_success"]
