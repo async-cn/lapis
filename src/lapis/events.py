@@ -43,6 +43,7 @@ class EventRegistry:
                     "event_type": event_listener.event_type,
                     "filter": event_listener.event_filter.to_nodes(),
                     "subscription": event_listener.subscription.to_list(),
+                    "proxy": event_listener.proxy,
                 },
             )
             if response.response_type != "register_event_listener_response":
@@ -85,23 +86,19 @@ class EventRegistry:
         debug(f"{uuid} unregistered")
         return True
 
-    async def dispatch(self, event:Event) -> None:
-        """
-        接收到Java端发送的事件且JSON被转换为Event对象后自动调用此函数
-        :param event: 事件
-        :return:
-        """
-        event_listener_uuid:str = str(event.listener_uuid)
+    async def dispatch(self, event: Event) -> None:
+        event_listener_uuid: str = str(event.listener_uuid)
         if event_listener_uuid not in self._registry:
             error(f"Undefined EventListener UUID: {event_listener_uuid}")
             return
         event_listener = self._registry[event_listener_uuid]
         r = event_listener.handler(event)
-        result:None|bool = (await r) if inspect.isawaitable(r) else r
+        result: None | bool = (await r) if inspect.isawaitable(r) else r
         if event_listener.proxy:
             await get_context().client.send_message_response(
                 "event_proxy_result",
                 {
+                    "event_id": event.event_id,
                     "continue": result
                 }
             )
@@ -114,6 +111,8 @@ class Event:
         self.event_type: str = raw_data["event_type"]
         self.listener_uuid: str = raw_data["listener_uuid"]
         self.data: dict = raw_data["data"]
+        self.event_id: str = raw_data["event_id"]
+        self.proxy: bool = raw_data["proxy"]
     def get_target_player(self) -> TargetPlayer:
         return TargetPlayer(self.data["player"]["uuid"])
 
