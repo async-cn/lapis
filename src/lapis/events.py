@@ -45,13 +45,13 @@ class EventRegistry:
                     "subscription": event_listener.subscription.to_list(),
                 },
             )
-            if response["response_type"] != "register_event_listener_response":
+            if response.response_type != "register_event_listener_response":
                 raise RuntimeError(
                     "Unexpected response type: "
                     f"{response['response_type']}"
                 )
 
-            data = response["data"]
+            data = response.data
             if data["listener_uuid"] != (str(event_listener.uuid)):
                 raise RuntimeError("Listener UUID mismatch")
             if data["state"] != "ok":
