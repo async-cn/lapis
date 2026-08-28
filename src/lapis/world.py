@@ -1,14 +1,7 @@
 from typing import Any
 
-from . import nbt, block
 from .runtime import get_context
-from .config import Config
 from .utils import Data
-
-class WORLDS:
-    overworld: str
-    the_nether: str
-    the_end: str
 
 class World:
     name: str
@@ -52,5 +45,6 @@ class World:
             }
         )).ok
 
-for dimension, world_name in Config.DIMENSIONS.items():
-    setattr(WORLDS, dimension, world_name)
+OVERWORLD = World("world")
+THE_NETHER = World("world_the_nether")
+THE_END = World("world_the_end")
