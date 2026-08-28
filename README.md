@@ -12,6 +12,8 @@ Lapis 是一个面向 Minecraft 服务端的 Python 开发生态，它通过 TCP
 > - [ ] 补充更多 TODO
 > - [ ] 移除已废弃的 `nbt.NBT` 和 `utils.Vector`，以及其他已废弃的方法。
 > - [ ] 实现 `Player.show_notice`
+> - [ ] 支持实体配置文件（yaml, toml等）
+> - [ ] 换一个更简单的示例程序
 
 ---
 
@@ -55,7 +57,8 @@ server:
   password: pw114514
 ```
 
-> ⚠️ SDK 默认连接 `localhost:9331`，默认密码 `pw114514`。如需修改，请在你的 Python 包中 `import lapis` 之前修改 `lapis.config.Config` 的对应字段。
+> [!WARNING]
+> ⚠️ SDK 默认连接 `localhost:9331`，默认密码 `pw114514`。如需修改，请提前修改 `lapis.config.Config` 的对应字段。
 
 ### 2. 安装 Lapis Python SDK
 
@@ -100,17 +103,18 @@ my_plugin/
 # my_plugin/__init__.py
 
 import lapis
-from lapis import on, info
+from lapis import event
+from lapis.log import *
 from lapis.player import Player
+from lapis.ast import *
 from lapis.database import (
     init_database,
     Table,
     Column,
     get_table,
-    Eq,
 )
 
-# 0. 初始化运行时（包名唯一即可）
+# 0. 初始化运行时（包名唯一，由小写字母组成，可包含数字和下划线）
 lapis.init("my_plugin")
 
 # 1. 初始化数据库（可选）
@@ -124,7 +128,7 @@ init_database(users)
 
 
 # 2. 监听玩家交互事件
-@on("PlayerInteract")
+@event.on("PlayerInteract")
 async def on_interact(event):
     player: Player = event.get_target_player()
     block = event.get_block()
