@@ -2,9 +2,14 @@ from typing import TYPE_CHECKING
 
 from .runtime import get_context
 from .message import format_message
+from .entity import EntityPos
 
 if TYPE_CHECKING:
     from .item import ItemStack
+
+class PlayerPos(EntityPos):
+    def __repr__(self) -> str:
+        return f"PlayerPos({self.world}: {self.x}, {self.y}, {self.z})"
 
 class Player:
     pass
@@ -47,7 +52,8 @@ class TargetPlayer(Player):
                         "message_type": "",
                         "message_content": ""
                     }
-                )
+                ),
+                "timeout": timeout
             }
         )
 

@@ -7,7 +7,7 @@ from .runtime import (
 )
 
 from .client import LapisClient
-from .events import EventRegistry
+from .event import EventRegistry
 from .config import Config
 from .server_message import init_message_dispatcher
 from .database import Database
@@ -38,10 +38,5 @@ def init(package_name: str) -> LapisContext:
 
     return context
 
-def start():
-    try:
-        asyncio.run(
-            _runtimes[get_context().package_name].start()
-        )
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt -> Runtime Interrupted")
+async def start():
+    await _runtimes[get_context().package_name].start()

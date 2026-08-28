@@ -844,7 +844,7 @@ class Table:
 
     def add(
         self,
-        data: dict[str, Any],
+        **data,
     ) -> int:
 
         if self.database is None:
@@ -888,7 +888,7 @@ class Table:
 
     async def add_async(
         self,
-        data: dict[str, Any],
+        **data,
     ) -> int:
 
         if self.database is None:
