@@ -2,7 +2,7 @@ from typing import Any
 
 from .utils import Vector
 
-class Pos(Vector):
+class Pos(Vector): # 移除 Vector
     world:str
 
     def __init__(self, world:str, x:int, y:int, z:int):

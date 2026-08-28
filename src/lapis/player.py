@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING
+from functools import wraps
 
 from .runtime import get_context
 from .message import format_message
@@ -12,11 +13,20 @@ class PlayerPos(EntityPos):
         return f"PlayerPos({self.world}: {self.x}, {self.y}, {self.z})"
 
 class Player:
-    pass
 
-class TargetPlayer(Player):
+    uuid: str
+    is_concrete: bool
+
     def __init__(self, uuid:str):
         self.uuid=uuid
+        self.is_concrete = True
+
+    def require_concreteness(self, func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            if not self.is_concrete:
+                raise Exception("Player is inconcrete")
+            return func(*args, **kwargs)
 
     async def send_message(self, message:str|dict) -> bool:
         """
@@ -35,7 +45,6 @@ class TargetPlayer(Player):
     async def ask_input(self, prompt:str = None, timeout:float = -1) -> str:
         """
         请求玩家输入
-
         :param prompt: 提示消息，None表示无提示
         :param timeout: 时间限制，-1表示无时间限制，超时则抛出TimeoutError异常
         :return: 输入结果
@@ -163,3 +172,8 @@ class TargetPlayer(Player):
                 "force": force
             }
         )).data["is_success"]
+
+def create_target_player(uuid: str) -> Player:
+    player = Player(uuid)
+    player.is_concrete = False
+    return player

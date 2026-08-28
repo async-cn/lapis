@@ -11,7 +11,7 @@ from .log import *
 from .server_message import message_handler
 from .utils import dict_trans
 
-from .player import TargetPlayer
+from .player import Player
 from .block import create_block
 
 if TYPE_CHECKING:
@@ -121,8 +121,8 @@ class Event:
         self.data: dict = raw_data["data"]
         self.proxy: bool = raw_data["proxy"]
         self.event_id: str = raw_data["event_id"]
-    def get_target_player(self) -> TargetPlayer:
-        return TargetPlayer(self.data["player"]["uuid"])
+    def get_target_player(self) -> Player:
+        return Player(self.data["player"]["uuid"])
     def get_block(self) -> Block:
         return create_block(
             **dict_trans(self.data["block"], {

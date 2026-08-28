@@ -1,5 +1,28 @@
 from typing import Any
 
+class Data:
+
+    data: dict[str, Any]
+
+    def __init__(self, data:dict[str, Any]):
+        self.data = data
+
+    def get(self, path:str) -> Any | None:
+        """
+        获取指定路径对应的值
+        :param path: 路径字符串，用“.”分隔
+        :return: 获取到的结果，若路径错误则为None
+        """
+        current = self.data
+        for p in path.split("."):
+            if hasattr(current, "__getitem__") and p in current.keys():
+                current = current[p]
+            else:
+                return None
+        return current
+
+    def raw(self) -> dict[str, Any]:
+        return self.data
 
 class Vector:
     x: float

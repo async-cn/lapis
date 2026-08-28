@@ -12,8 +12,6 @@ from .config import Config
 from .server_message import init_message_dispatcher
 from .database import Database
 
-import asyncio
-
 _runtimes = {}
 
 def init(package_name: str) -> LapisContext:

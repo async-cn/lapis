@@ -32,22 +32,6 @@ class Block:
         self.block_state = block_state
         self.nbt = nbt
 
-async def set_block(block: Block) -> bool:
-    """
-    设置方块
-    :param block: 方块，其中维度建议使用world.WORLDS
-    :return:
-    """
-    return (await get_context().client.command(
-        "set_block",
-        {
-            "block_id": block.block_id,
-            **block.pos.raw(),
-            "block_state": block.block_state,
-            "nbt": block.nbt.raw()
-        }
-    )).ok
-
 
 class BlockPos(Pos):
     x: int
