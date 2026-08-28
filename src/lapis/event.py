@@ -9,7 +9,7 @@ from .runtime import get_context
 from .ast import VoidOperator
 from .log import *
 from .server_message import message_handler
-from .utils import dict_trans
+from .utils import Data, dict_trans
 
 from .player import Player
 from .block import create_block
@@ -118,14 +118,14 @@ class Event:
     def __init__(self, raw_data:dict) -> None:
         self.event_type: str = raw_data["event_type"]
         self.listener_uuid: str = raw_data["listener_uuid"]
-        self.data: dict = raw_data["data"]
+        self.data: Data = Data(raw_data["data"])
         self.proxy: bool = raw_data["proxy"]
         self.event_id: str = raw_data["event_id"]
     def get_target_player(self) -> Player:
-        return Player(self.data["player"]["uuid"])
+        return Player(self.data.get("player.uuid"))
     def get_block(self) -> Block:
         return create_block(
-            **dict_trans(self.data["block"], {
+            **dict_trans(self.data.get("block"), {
                 "id": "block_id",
                 "world": "world",
                 "pos": "pos_raw",

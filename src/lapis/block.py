@@ -1,31 +1,29 @@
 from typing import TYPE_CHECKING, Any
 
 from .pos import Pos
-from .runtime import get_context
-from .world import WORLDS
-from .nbt import NBT
+from .utils import Data
 
 if TYPE_CHECKING:
     from typing import Any
 
 class Block:
     block_id: str
-    block_state: dict[str, Any]
+    block_state: Data
     pos: BlockPos
-    nbt: NBT
+    nbt: Data
 
     def __init__(
             self,
             block_id: str,
             pos: BlockPos,
-            block_state: dict[str, Any] = None,
-            nbt: NBT = None
+            block_state: Data = None,
+            nbt: Data = None
     ) -> None:
 
         if block_state is None:
             block_state = {}
         if nbt is None:
-            nbt = NBT()
+            nbt = Data({})
 
         self.block_id = block_id
         self.pos = pos
@@ -51,12 +49,13 @@ class BlockPos(Pos):
 
 
 def create_blockpos(dimension:str, x:int, y:int, z:int) -> BlockPos:
-    return BlockPos(
-        getattr(WORLDS, dimension),
-        x,
-        y,
-        z,
-    )
+    raise Exception("create_blockpos is no longer available")
+    # return BlockPos(
+    #     getattr(WORLDS, dimension),
+    #     x,
+    #     y,
+    #     z,
+    # )
 
 def create_block(
     block_id: str = "minecraft:air",
@@ -81,6 +80,6 @@ def create_block(
     return Block(
         block_id,
         BlockPos(world, *pos_raw),
-        block_state,
-        NBT(**nbt_raw)
+        Data(block_state),
+        Data(nbt_raw)
     )
