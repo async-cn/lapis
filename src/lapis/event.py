@@ -46,12 +46,13 @@ class EventRegistry:
                     "event_type": event_listener.event_type,
                     "filter": event_listener.event_filter.to_nodes(),
                     "subscription": event_listener.subscription.to_list(),
+                    "proxy": event_listener.proxy
                 },
             )
             if response.response_type != "register_event_listener_response":
                 raise RuntimeError(
                     "Unexpected response type: "
-                    f"{response.data['response_type']}"
+                    f"{response.response_type}"
                 )
 
             data = response.data
@@ -105,6 +106,7 @@ class EventRegistry:
             await get_context().client.send_message_response(
                 "event_proxy_result",
                 {
+                    "event_id": event.event_id,
                     "continue": result
                 }
             )
@@ -117,6 +119,8 @@ class Event:
         self.event_type: str = raw_data["event_type"]
         self.listener_uuid: str = raw_data["listener_uuid"]
         self.data: dict = raw_data["data"]
+        self.proxy: bool = raw_data["proxy"]
+        self.event_id: str = raw_data["event_id"]
     def get_target_player(self) -> TargetPlayer:
         return TargetPlayer(self.data["player"]["uuid"])
     def get_block(self) -> Block:
