@@ -1,17 +1,41 @@
 {
     "message_type": "event",
     "data": {
-        "event_type": "",
-        "listener_uuid": "",
+        "event_type": "PlayerJoin",
+        "listener_uuid": "20a08fd9-0fd1-4793-8aaf-e3086d3c3959",
+        "proxy": false,
+        "event_id": "",
         "data": {
             "player": {
-                "nbt": {}, //...
-                "uuid": "..."
+                "uuid": "550e8400-e29b-41d4-a716-446655440000",
+                "nbt": {
+                    "name": "Steve",
+                    "display_name": "{\"text\":\"Steve\"}"
+                },
+                "custom_data": {
+                    "package_name": {
+                        "data_key": "data_value"
+                    }
+                }
             },
             "block": {
-                "nbt": {} //...
-            }
-            // , ...
+                "type": "minecraft:stone",
+                "x": 0,
+                "y": 0,
+                "z": 0,
+                "world": "world",
+                "nbt": {}
+            },
+            "block_against": {
+                "type": "minecraft:dirt",
+                "x": 0,
+                "y": -1,
+                "z": 0,
+                "world": "world",
+                "nbt": {}
+            },
+            "interaction_type": "left_click",
+            "message": "chat message text"
         }
     }
 }

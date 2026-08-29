@@ -1,8 +1,6 @@
 # Lapis
 
-> 用 Python 编写 Minecraft 插件与 Mod 的 SDK。
-
-Lapis 是一个面向 Minecraft 服务端的 Python 开发生态，它通过 TCP 桥接的方式，让你可以用纯 Python 编写功能完整的插件 / 模组：注册事件、操作玩家、修改世界、执行指令、管理数据库，统统不在话下。
+Lapis 是一个面向 Minecraft 服务端的 Python 开发生态，让你可以用纯 Python 编写功能完整的插件 / 模组，支持注册事件、操作玩家、修改世界、执行指令、管理数据库等实用功能。
 
 ---
 
@@ -23,44 +21,45 @@ Lapis 由两部分协同工作：
 
 | 组件 | 说明 |
 | --- | --- |
-| **Lapis Plugin（Java 端）** | 安装在 Minecraft 服务端上的桥接插件，负责在 Java 与 Python 之间转发指令与事件。 |
+| **Lapis Plugin（Java 端）** | 安装在 Minecraft 服务端上的桥接插件，负责转发指令与事件。 |
 | **Lapis SDK（本仓库，Python 端）** | 开发者使用的 Python SDK，提供玩家 / 世界 / 事件 / 数据库等 API，并内置 Loader 运行你的 Python 包。 |
 
-两者通过 TCP 通信，支持 request/response 与 Java 主动推送（事件等）。
+两者通过 TCP 通信，支持 request/response 与 Java 端主动推送消息（事件等）。
 
 ---
 
 ## 环境要求
 
-- **Python**：`>= 3.9`
-- **操作系统**：跨平台（Windows / macOS / Linux）
-- **Minecraft 服务端**：需要能运行 [lapis-plugin](https://github.com/async-cn/lapis-plugin) 的 Java 服务端
-- 本 SDK 依赖：`aiosqlite`（用于异步数据库）
+| 环境                | 要求                                                       |
+|-------------------|----------------------------------------------------------|
+| **Python**        | `>= 3.9`                                                 |
+| **Minecraft 服务端** | Paper 等支持安装插件的 Minecraft 服务端                             |
+| **前置插件**          | [lapis-plugin](https://github.com/async-cn/lapis-plugin) |
 
 ---
 
 ## 安装
 
-### 1. 安装 Minecraft 端桥接插件（前置）
+### 1. 前置桥接插件
 
-Lapis SDK 需要与 Minecraft 服务端上的 Java 插件配合使用。请先从以下仓库下载并安装：
-
-> 👉 [https://github.com/async-cn/lapis-plugin](https://github.com/async-cn/lapis-plugin)
+下载并安装迁至插件 [lapis-plugin](https://github.com/async-cn/lapis-plugin)
 
 将构建得到的 `.jar` 放入服务端的 `plugins/` 目录，然后**启动一次服务端**以生成默认配置文件。按需修改插件配置中的监听地址、端口与密码：
 
 ```yaml
-# lapis-plugin 配置示例（仅供参考，以插件实际文档为准）
+# lapis-plugin 配置示例
 server:
-  host: 0.0.0.0
+  host: localhost
   port: 9331
-  password: pw114514
+  password: mypassword114514
 ```
 
 > [!WARNING]
-> ⚠️ SDK 默认连接 `localhost:9331`，默认密码 `pw114514`。如需修改，请提前修改 `lapis.config.Config` 的对应字段。
+> SDK 默认连接 `localhost:9331`，默认密码 `pw114514`。如需修改，请提前修改 `lapis.config.Config` 的对应字段。
+> 
+> 后续版本将支持外部配置文件。
 
-### 2. 安装 Lapis Python SDK
+### 2. Lapis SDK
 
 克隆本仓库并安装：
 
@@ -70,103 +69,87 @@ cd lapis
 pip install -e .
 ```
 
-（待后续发布到 PyPI 后，可直接 `pip install lapis-sdk`。）
-
-安装完成后可以通过以下命令验证：
-
-```bash
-python -m lapis
-```
+（待发布到 PyPI 后，可直接 `pip install lapis-sdk`。）
 
 ---
 
 ## 快速开始
 
-### 创建一个 Python 包
-
-Lapis 把每一个独立功能单元称为一个 **Package**（Python 包），目录结构如下：
+### 示例 Package
 
 ```
-my_plugin/
+my_package/
+├── package.json
 └── __init__.py
 ```
 
-在 `__init__.py` 中，你需要：
+#### package.json
 
-1. 调用 `lapis.init(package_name)` 初始化运行时；
-2. 定义异步函数 `async def main()`，在里面调用 `lapis.start()` 启动 Runtime；
-3. 在此之前注册事件监听、初始化数据库等。
+```json
+{
+    "package_name": "my_package",
+    "package_display_name": "MyPackage",
+    "version": "11.45.14",
+    "dependencies": {}
+}
+```
 
-### 示例：欢迎 + 点击方块提示
+#### \_\_init\_\_.py
 
 ```python
-# my_plugin/__init__.py
-
 import lapis
 from lapis import event
 from lapis.log import *
 from lapis.player import Player
 from lapis.ast import *
-from lapis.database import (
-    init_database,
-    Table,
-    Column,
-    get_table,
-)
 
-# 0. 初始化运行时（包名唯一，由小写字母组成，可包含数字和下划线）
-lapis.init("my_plugin")
-
-# 1. 初始化数据库（可选）
-users = Table(
-    "users",
-    Column("id", "INTEGER PRIMARY KEY AUTOINCREMENT"),
-    Column("uuid", "TEXT NOT NULL UNIQUE"),
-    Column("join_count", "INTEGER NOT NULL DEFAULT 0"),
-)
-init_database(users)
+# 0. 初始化运行时（包名由小写字母组成，可包含数字和下划线）
+lapis.init("my_package")
 
 
-# 2. 监听玩家交互事件
-@event.on("PlayerInteract")
-async def on_interact(event):
-    player: Player = event.get_target_player()
-    block = event.get_block()
-
+# 1. 监听玩家进入游戏和破坏方块
+@event.on("PlayerJoin")
+async def hello(event):
+    player = event.get_target_player()
     await player.send_message(
-        f"你点击了 {block}，这是你的第 N 次交互～"
+        f"欢迎加入本服务器！"
+    )
+
+@event.on("BlockBreak")
+async def on_blockbreak(event):
+    player = event.get_target_player()
+    block = event.get_block()
+    await player.send_message(
+        f"你破坏了方块 {block.block_id}"
     )
 
 
-# 3. 主入口
+# 2. 主入口
 async def main():
-    info("my_plugin 启动成功，开始监听事件！")
-    # 启动 Lapis Runtime：连接 Java 端 + 注册事件 + 保持运行
+    info("Package启动成功")
     await lapis.start()
 ```
 
 ### 启动你的 Package
 
-1. 先启动安装好 lapis-plugin 的 Minecraft 服务端，确认桥接端口已监听；
-2. 再用 Lapis Loader 运行你的包：
+1. 先启动安装了 lapis-plugin 的 Minecraft 服务端，确认桥接端口已监听；
+2. 使用 Lapis Loader 运行你的包：
 
 ```bash
-python -m lapis run ./my_plugin
+python -m lapis run ./my_package
 ```
-
-如果一切正常，你会看到 Loader 完成初始化、建立连接、并在有玩家交互时触发回调。
 
 ---
 
 ## Package 规范速览
 
-| 要素 | 说明 |
-| --- | --- |
-| `lapis.init(name)` | 在模块导入阶段调用，创建 Client、EventRegistry、Database 等上下文。 |
-| `async def main()` | 必须定义；Loader 会在同一事件循环中 `await` 它。 |
-| `await lapis.start()` | 在 `main()` 内调用：建立 Java 连接、批量注册事件监听器并保持常驻。 |
-| `@on(event_type, ...)` | 装饰器：注册事件处理器；支持过滤条件、订阅字段与事件代理。 |
-| `init_database(*tables)` | 为当前包创建独立 SQLite 数据库（`databases/<package_name>.sqlite`）。 |
+| 要素                           | 说明 |
+|------------------------------| --- |
+| `lapis.init(name)`           | 在模块导入阶段调用，创建 Client、EventRegistry、Database 等上下文。 |
+| `async def main()`           | 必须定义；Loader 会在同一事件循环中 `await` 它。 |
+| `await lapis.start()`        | 在 `main()` 内调用：建立 Java 连接、批量注册事件监听器并保持常驻。 |
+| `@event.on(event_type, ...)` | 装饰器：注册事件处理器；支持过滤条件、订阅字段与事件代理。 |
+| `init_database(*tables)`     | 为当前包创建独立 SQLite 数据库。 |
 
 ---
 

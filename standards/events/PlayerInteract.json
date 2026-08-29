@@ -1,15 +1,21 @@
-// Event: PlayerInteract 玩家左键/右键方块
+// Event: PlayerInteract 玩家交互（左键/右键方块或空气）
 {
     "data": {
-        "interaction_type": "left_click", // or right_click
         "player": {
-            // ...
+            "uuid": "550e8400-e29b-41d4-a716-446655440000",
+            "nbt": {
+                "name": "Steve",
+                "display_name": "{\"text\":\"Steve\",\"color\":\"white\"}"
+            }
         },
+        "interaction_type": "left_click",
         "block": {
-            "block_id": "chest",
-            "block_state": {}, // ...
-            "pos": [11, 45, 14],
-            "nbt": {} // ...
+            "type": "minecraft:chest",
+            "x": 100,
+            "y": 64,
+            "z": 200,
+            "world": "world",
+            "nbt": {}
         }
     }
 }
