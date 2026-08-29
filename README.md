@@ -2,10 +2,9 @@
 
 Lapis 是一个面向 Minecraft 服务端的 Python 开发生态，让你可以用纯 Python 编写功能完整的插件 / 模组，支持注册事件、操作玩家、修改世界、执行指令、管理数据库等实用功能。
 
----
+### TODO
 
-> [!NOTE]  
-> ### TODO
+> [!NOTE]
 > - [ ] 修改 README，去AI味
 > - [ ] 补充更多 TODO
 > - [ ] 移除已废弃的 `nbt.NBT` 和 `utils.Vector`，以及其他已废弃的方法。
@@ -15,20 +14,9 @@ Lapis 是一个面向 Minecraft 服务端的 Python 开发生态，让你可以�
 
 ---
 
-## 架构概览
+## 安装
 
-Lapis 由两部分协同工作：
-
-| 组件 | 说明 |
-| --- | --- |
-| **Lapis Plugin（Java 端）** | 安装在 Minecraft 服务端上的桥接插件，负责转发指令与事件。 |
-| **Lapis SDK（本仓库，Python 端）** | 开发者使用的 Python SDK，提供玩家 / 世界 / 事件 / 数据库等 API，并内置 Loader 运行你的 Python 包。 |
-
-两者通过 TCP 通信，支持 request/response 与 Java 端主动推送消息（事件等）。
-
----
-
-## 环境要求
+### 环境要求
 
 | 环境                | 要求                                                       |
 |-------------------|----------------------------------------------------------|
@@ -36,11 +24,7 @@ Lapis 由两部分协同工作：
 | **Minecraft 服务端** | Paper 等支持安装插件的 Minecraft 服务端                             |
 | **前置插件**          | [lapis-plugin](https://github.com/async-cn/lapis-plugin) |
 
----
-
-## 安装
-
-### 1. 前置桥接插件
+### 前置桥接插件
 
 下载并安装迁至插件 [lapis-plugin](https://github.com/async-cn/lapis-plugin)
 
@@ -54,12 +38,7 @@ server:
   password: mypassword114514
 ```
 
-> [!WARNING]
-> SDK 默认连接 `localhost:9331`，默认密码 `pw114514`。如需修改，请提前修改 `lapis.config.Config` 的对应字段。
-> 
-> 后续版本将支持外部配置文件。
-
-### 2. Lapis SDK
+### Lapis SDK
 
 克隆本仓库并安装：
 
@@ -69,7 +48,20 @@ cd lapis
 pip install -e .
 ```
 
-（待发布到 PyPI 后，可直接 `pip install lapis-sdk`。）
+安装成功后，查看并修改 `config.toml`，填写自定义密码等关键配置。
+
+---
+
+## 架构概览
+
+Lapis 由两部分协同工作：
+
+| 组件 | 说明 |
+| --- | --- |
+| **Lapis Plugin（Java 端）** | 安装在 Minecraft 服务端上的桥接插件，负责转发指令与事件。 |
+| **Lapis SDK（本仓库，Python 端）** | 开发者使用的 Python SDK，提供玩家 / 世界 / 事件 / 数据库等 API，并内置 Loader 运行你的 Python 包。 |
+
+两者通过 TCP 通信，支持 request/response 与 Java 端主动推送消息（事件等）。
 
 ---
 
@@ -100,14 +92,10 @@ my_package/
 import lapis
 from lapis import event
 from lapis.log import *
-from lapis.player import Player
 from lapis.ast import *
 
-# 0. 初始化运行时（包名由小写字母组成，可包含数字和下划线）
 lapis.init("my_package")
 
-
-# 1. 监听玩家进入游戏和破坏方块
 @event.on("PlayerJoin")
 async def hello(event):
     player = event.get_target_player()
@@ -115,16 +103,30 @@ async def hello(event):
         f"欢迎加入本服务器！"
     )
 
-@event.on("BlockBreak")
+@event.on(
+    "BlockBreak", 
+    Or(
+        Eq("block.id", "minecraft:bamboo"),
+        Eq("block.id", "minecraft:cobweb")
+    ), 
+    ["player.nbt.SelectedItem.id"]
+)
 async def on_blockbreak(event):
     player = event.get_target_player()
     block = event.get_block()
-    await player.send_message(
-        f"你破坏了方块 {block.block_id}"
-    )
+    tool = event.data.get("player.nbt.SelectedItem.id")
+    is_bamboo = block.block_id == "minecraft:bamboo"
+    best_tool = "剑" if is_bamboo else "剑或剪刀"
+    block_name = "竹子" if is_bamboo else "蜘蛛网"
+    if (
+            (is_bamboo and not "sword" in tool)
+            or (not is_bamboo and "sword" not in tool and tool != "minecraft:scissors")
+    ):
+        await player.send_message(
+            f"你正在使用 {tool} 破坏 {block_name}；"
+            f"温馨提示：该方块的最适破坏工具为{best_tool}。"
+        )
 
-
-# 2. 主入口
 async def main():
     info("Package启动成功")
     await lapis.start()

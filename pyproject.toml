@@ -5,6 +5,10 @@ description = "A SDK to make Minecraft Plugin/Mod with Python"
 authors = [{name = "Oasis Studio", email = "oasismc@qq.com"}]
 readme = "README.md"
 requires-python = ">=3.9"
+dependencies = [
+   "aiosqlite",
+   "tomli; python_version < '3.11'",
+]
 classifiers = [
    "Programming Language :: Python :: 3",
    "License :: OSI Approved :: MIT License",

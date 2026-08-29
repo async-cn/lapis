@@ -1,0 +1,19 @@
+[LAPIS]
+VERSION = "0.0.9" # Do not change this
+DEBUG = false
+
+[LOADER]
+PACKAGES_PATH = "{lapis_dir}/../packages"
+
+[SERVER]
+ADDR = "localhost"
+PORT = 9331
+PASSWORD = "pw114514"
+
+[CLIENT]
+MAX_PACKET_SIZE = 0xffffff # 16 * 1024 * 1024
+
+[DIMENSIONS]
+OVERWORLD = "world"
+THE_NETHER = "world_the_nether"
+THE_END = "world_the_end"
