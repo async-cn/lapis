@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="src/lapis/assets/images/lapis-title.png" height="84" alt="title"><br/>
+    <img src="src/lapis/assets/images/lapis-title.png" height="84" alt="title"><br/><br/>
     <p>Minecraft サーバー向けの Python 開発エコシステム</p>
     <p>
         <a href="README.md">简体中文</a> |
@@ -7,12 +7,11 @@
         <a href="README_JP.md">日本語</a>
     </p>
     <img alt="License MIT" src="https://img.shields.io/badge/license-MIT-blue.svg">
-    <img alt="GitHub Release" src="https://img.shields.io/github/v/release/async-cn/lapis?color=green">
+    <img alt="GitHub Release" src="https://img.shields.io/github/v/release/async-cn/lapis?color=blue">
     <img alt="Last Commit" src="https://img.shields.io/github/last-commit/async-cn/lapis"><br/>
     <img alt="Contributors" src="https://img.shields.io/github/contributors/async-cn/lapis?color=violet">
     <img alt="Stars" src="https://img.shields.io/github/stars/async-cn/lapis?style=flat&logo=github&label=Stars&color=yellow">
-    <img alt="GitHub Issues" src="https://img.shields.io/github/issues/async-cn/lapis?color=deepskyblue">
-
+    <img alt="GitHub Issues" src="https://img.shields.io/github/issues/async-cn/lapis?color=brightgreen">
 </div>
 
 ---
