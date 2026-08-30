@@ -1,8 +1,19 @@
-# Lapis
+<div align="center" style="margin-top: 32px">
+    <img src="src/lapis/assets/images/lapis-title.png" height="84" alt="title" style="margin-top: 16px">
+    <p>面向 Minecraft 服务端的 Python 开发生态</p>
+    <p>
+        <a href="README.md">简体中文</a> |
+        <a href="README_EN.md">English</a> |
+        <a href="README_JP.md">日本語</a>
+    </p>
+    <img alt="License MIT" src="https://img.shields.io/badge/license-MIT-blue.svg">
+    <img alt="GitHub Release" src="https://img.shields.io/github/v/release/async-cn/lapis?color=green">
+    <img alt="Last Commit" src="https://img.shields.io/github/last-commit/async-cn/lapis"><br/>
+    <img alt="Contributors" src="https://img.shields.io/github/contributors/async-cn/lapis?color=violet">
+    <img alt="Stars" src="https://img.shields.io/github/stars/async-cn/lapis?style=flat&logo=github&label=Stars&color=yellow">
+    <img alt="GitHub Issues" src="https://img.shields.io/github/issues/async-cn/lapis?color=deepskyblue">
 
-[简体中文](README.md) | [English](README_EN.md) | [日本語](README_JP.md)
-
-Lapis 是一个面向 Minecraft 服务端的 Python 开发生态，让你可以用纯 Python 编写功能完整的插件 / 模组，支持注册事件、操作玩家、修改世界、执行指令、管理数据库等实用功能。
+</div>
 
 ---
 
@@ -218,3 +229,7 @@ Lapis 由两部分协同工作：
 本项目以 **MIT License** 开源，详见 [LICENSE](LICENSE)。
 
 > Copyright (c) 2026 Oasis Studio
+
+> [!NOTE]
+> 
+> 我们计划未来开发 Fabric/Forge 移植 Mod 版本。

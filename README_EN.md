@@ -1,8 +1,19 @@
-# Lapis
+<div align="center" style="margin-top: 32px">
+    <img src="src/lapis/assets/images/lapis-title.png" height="84" alt="title" style="margin-top: 16px">
+    <p>A Python development ecosystem for Minecraft servers</p>
+    <p>
+        <a href="README.md">简体中文</a> |
+        <a href="README_EN.md">English</a> |
+        <a href="README_JP.md">日本語</a>
+    </p>
+    <img alt="License MIT" src="https://img.shields.io/badge/license-MIT-blue.svg">
+    <img alt="GitHub Release" src="https://img.shields.io/github/v/release/async-cn/lapis?color=green">
+    <img alt="Last Commit" src="https://img.shields.io/github/last-commit/async-cn/lapis"><br/>
+    <img alt="Contributors" src="https://img.shields.io/github/contributors/async-cn/lapis?color=violet">
+    <img alt="Stars" src="https://img.shields.io/github/stars/async-cn/lapis?style=flat&logo=github&label=Stars&color=yellow">
+    <img alt="GitHub Issues" src="https://img.shields.io/github/issues/async-cn/lapis?color=deepskyblue">
 
-[简体中文](README.md) | [English](README_EN.md) | [日本語](README_JP.md)
-
-Lapis is a Python development ecosystem for Minecraft servers, allowing you to write fully functional plugins/mods in pure Python. It supports event registration, player manipulation, world modification, command execution, database management, and many other practical features.
+</div>
 
 ---
 
