@@ -223,6 +223,13 @@ Lapis 由两部分协同工作：
 
 ---
 
+## 帮助与支持
+
+> [!IMPORTANT]
+> 加入Lapis 开发者社区 QQ 群 [806492643](https://qm.qq.com/q/Uu4mGaTaee)
+
+---
+
 ## License
 
 本项目以 **MIT License** 开源，详见 [LICENSE](LICENSE)。

@@ -20,10 +20,10 @@
 
 ### Requirements
 
-| Environment             | Requirements                                                      |
-| ----------------------- | ----------------------------------------------------------------- |
-| **Python**              | `>= 3.9`                                                          |
-| **Minecraft Server**    | Minecraft servers that support plugin installation, such as Paper |
+| Environment         | Requirements                                                         |
+|---------------------|----------------------------------------------------------------------|
+| **Python**          | `>= 3.9`                                                             |
+| **Minecraft Server** | Minecraft servers that support plugin installation, such as Paper    |
 | **Prerequisite Plugin** | [lapis-plugin](https://github.com/async-cn/lapis-plugin)          |
 
 ### Prerequisite Bridge Plugin
@@ -113,7 +113,6 @@ async def main():
 ```
 
 #### tnt_blocker.py
-
 ```python
 from lapis.event import on, Event
 from lapis.ast import *
@@ -137,7 +136,6 @@ async def on_blockplace(event: Event):
 ```
 
 #### tool_reminder.py
-
 ```python
 from lapis.event import on, Event
 from lapis.ast import *
@@ -171,6 +169,7 @@ async def on_blockbreak(event: Event):
         )
 ```
 
+
 ### Running Your Package
 
 1. Start the Minecraft server with lapis-plugin installed;
@@ -190,9 +189,9 @@ FastShop is an example shop package modeled after the QuickShop plugin. You can 
 
 Lapis consists of two components working in tandem:
 
-| Component                                    | Description                                                                                                                    |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| **Lapis Plugin (Java side)**                 | A bridge plugin installed on the Minecraft server, responsible for forwarding commands and events.                             |
+| Component | Description |
+| --- | --- |
+| **Lapis Plugin (Java side)** | A bridge plugin installed on the Minecraft server, responsible for forwarding commands and events. |
 | **Lapis SDK (this repository, Python side)** | The Python SDK for developers, providing Player/World/Event/Database APIs, with a built-in Loader to run your Python packages. |
 
 Both communicate via TCP, supporting request/response patterns and Java-side active message pushes (events, etc.).
@@ -201,31 +200,33 @@ Both communicate via TCP, supporting request/response patterns and Java-side act
 
 ## Package Specification Quick Reference
 
-| Element                      | Description                                                                                     |
-| ---------------------------- | ----------------------------------------------------------------------------------------------- |
-| `init(name)`                 | Called during module import to create the context.                                              |
-| `async def main()`           | Must be defined; the Loader will call it within the same event loop.                            |
-| `await start()`              | Called inside `main()`.                                                                         |
+| Element                      | Description                                                          |
+|------------------------------|----------------------------------------------------------------------|
+| `init(name)`                 | Called during module import to create the context.                   |
+| `async def main()`           | Must be defined; the Loader will call it within the same event loop. |
+| `await start()`              | Called inside `main()`.                                              |
 | `@event.on(event_type, ...)` | Decorator: registers event handlers; supports filters, field subscriptions, and event proxying. |
-| `init_database(*tables)`     | Creates an independent SQLite database for the current package.                                 |
+| `init_database(*tables)`     | Creates an independent SQLite database for the current package.     |
 
 ---
 
 ## SDK Core Capabilities
 
 - **Communication Layer**: Highly encapsulated, no manual access required. Asynchronous TCP with a custom JSON protocol for reliable command/response pairing with the Java side.
-
 - **Player API**: Send messages, request input, give/remove items, custom KV data, economy (eco) operations, and more.
-
 - **World / Blocks**: Set blocks in any dimension, with BlockState and NBT support.
-
 - **Event System**: Registered via the `@on` decorator, supporting server-side filtering (`EventFilter` AST) and field subscriptions (`EventSubscription`), with optional proxy mode for intercepting events.
-
 - **Database**: SQLite + aiosqlite based sync/async ORM-style API, using AST expressions to express query conditions.
-
 - **Built-in Loader**: `python -m lapis run <path>` one-click import and run a Package, managing the event loop lifecycle.
 
 - Detailed API documentation and examples will be supplemented in separate documentation later; this repository only provides a basic introduction and getting-started examples.
+
+---
+
+## Help & Support
+
+> [!IMPORTANT]
+> Join the Lapis developer community QQ group [806492643](https://qm.qq.com/q/Uu4mGaTaee)
 
 ---
 
@@ -234,3 +235,7 @@ Both communicate via TCP, supporting request/response patterns and Java-side act
 This project is open-sourced under the **MIT License**, see [LICENSE](LICENSE) for details.
 
 > Copyright (c) 2026 Oasis Studio
+
+> [!NOTE]
+>
+> We plan to develop Fabric/Forge port mod versions in the future.
