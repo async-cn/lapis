@@ -1,5 +1,5 @@
 <div align="center" style="margin-top: 32px">
-    <img src="src/lapis/assets/images/lapis-title.png" height="84" alt="title" style="margin-top: 16px">
+    <img src="src/lapis/assets/images/lapis-title.png" height="84" alt="title" style="margin: 16px 0">
     <p>面向 Minecraft 服务端的 Python 开发生态</p>
     <p>
         <a href="README.md">简体中文</a> |
