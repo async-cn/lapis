@@ -8,6 +8,8 @@ import aiosqlite
 
 from .runtime import get_context
 from .ast import VoidOperator
+from .config import Config
+from .log import warning as _log_warning
 
 if TYPE_CHECKING:
     from .ast import ASTOperator
@@ -72,6 +74,19 @@ def _rows_to_dict(
     return [dict(row) for row in rows]
 
 
+def _warn_if_bulk_mutation(
+    operation: str,
+    table_name: str,
+    data_filter: ASTOperator,
+) -> None:
+    """对于无条件的 UPDATE / DELETE 发出安全警告。"""
+    if isinstance(data_filter, VoidOperator):
+        _log_warning(
+            f"Database.{operation} called on table {table_name!r} "
+            "without a WHERE clause — this will affect EVERY row in the table."
+        )
+
+
 # ============================================================
 # Database
 # ============================================================
@@ -118,12 +133,12 @@ class Database:
 
         # 数据库目录。
         #
-        # 可以之后移动到 Config 中，例如：
-        #
-        # Config.DATABASE_DIR
-        #
+        # 可通过 Config.DATABASE_DIR 自定义。
+        # 支持相对路径（相对于当前工作目录）或绝对路径。
         database_dir = (
-            Path.cwd() / "databases"
+            Path(Config.DATABASE_DIR)
+            if Path(Config.DATABASE_DIR).is_absolute()
+            else Path.cwd() / Config.DATABASE_DIR
         )
 
         database_dir.mkdir(
@@ -782,9 +797,8 @@ class Table:
                     "limit must be -1 or >= 1"
                 )
 
-            sql += (
-                f" LIMIT {int(limit)}"
-            )
+            sql += " LIMIT ?"
+            parameters.append(int(limit))
 
         cursor = self.database.execute(
             sql,
@@ -822,7 +836,8 @@ class Table:
         if limit != -1:
             if limit < 1:
                 raise ValueError("limit must be -1 or >= 1")
-            sql += f" LIMIT {int(limit)}"
+            sql += " LIMIT ?"
+            parameters.append(int(limit))
 
         connection = await self.database.ensure_async_connection()
 
@@ -948,6 +963,8 @@ class Table:
                 "data cannot be empty"
             )
 
+        _warn_if_bulk_mutation("modify", self.table_name, data_filter)
+
         where_sql, where_parameters = (
             self._compile_ast(
                 data_filter
@@ -997,6 +1014,8 @@ class Table:
                 "data cannot be empty"
             )
 
+        _warn_if_bulk_mutation("modify_async", self.table_name, data_filter)
+
         where_sql, where_parameters = (
             self._compile_ast(
                 data_filter
@@ -1044,6 +1063,8 @@ class Table:
         if self.database is None:
             raise DatabaseNotInitializedError()
 
+        _warn_if_bulk_mutation("delete", self.table_name, data_filter)
+
         where_sql, parameters = (
             self._compile_ast(
                 data_filter
@@ -1071,6 +1092,8 @@ class Table:
 
         if self.database is None:
             raise DatabaseNotInitializedError()
+
+        _warn_if_bulk_mutation("delete_async", self.table_name, data_filter)
 
         where_sql, parameters = (
             self._compile_ast(

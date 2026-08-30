@@ -1,19 +1,25 @@
 [project]
 name = "lapis"
-version = "0.0.1"
+version = "0.1.0"
 description = "A SDK to make Minecraft Plugin/Mod with Python"
 authors = [{name = "Oasis Studio", email = "oasismc@qq.com"}]
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
    "aiosqlite",
+   "colorama",
    "tomli; python_version < '3.11'",
 ]
-classifiers = [
-   "Programming Language :: Python :: 3",
-   "License :: OSI Approved :: MIT License",
-   "Operating System :: OS Independent"
+[project.optional-dependencies]
+dev = [
+   "pytest>=7.4",
+   "pytest-asyncio>=0.21",
 ]
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+asyncio_mode = "auto"

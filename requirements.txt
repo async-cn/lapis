@@ -1,2 +1,5 @@
+# 运行时依赖 —— 与 pyproject.toml 保持一致。
+# 如需新增依赖，请优先修改 pyproject.toml，再导出到此文件。
 aiosqlite
-toml
+colorama
+tomli; python_version < "3.11"

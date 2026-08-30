@@ -1,1 +1,51 @@
+# ===== 本地工作区（项目原有） =====
 local-work
+.trae/
+
+# ===== Python 字节码 / 缓存 =====
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ===== 分发 / 打包 =====
+*.egg-info/
+.eggs/
+dist/
+build/
+*.whl
+*.tar.gz
+
+# ===== 数据库 / 数据 =====
+*.sqlite
+*.sqlite3
+*.db
+databases/
+
+# ===== 环境变量 & 密钥 =====
+.env
+.env.*
+!.env.example
+
+# ===== IDE & 编辑器 =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ===== 系统文件 =====
+.DS_Store
+Thumbs.db
+
+# ===== 日志 =====
+*.log
+logs/
+
+# ===== 测试 & 覆盖率 =====
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.tox/
+.mypy_cache/
+.ruff_cache/

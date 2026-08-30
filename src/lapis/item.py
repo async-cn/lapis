@@ -1,12 +1,12 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .nbt import NBT
+    from .utils import Data
 
 class Item:
     item_id: str
-    nbt: NBT
-    def __init__(self, item_id: str, nbt: NBT):
+    nbt: Data
+    def __init__(self, item_id: str, nbt: Data):
         self.item_id = item_id
         self.nbt = nbt
     def raw(self):
@@ -17,7 +17,7 @@ class Item:
 
 class ItemStack(Item):
     count: int
-    def __init__(self, item_id: str, nbt: NBT, count: int):
+    def __init__(self, item_id: str, nbt: Data, count: int):
         super().__init__(item_id, nbt)
         self.count = count
     def raw(self):

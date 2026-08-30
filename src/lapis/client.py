@@ -3,9 +3,10 @@ from __future__ import annotations
 import asyncio
 import json
 import struct
-from typing import Any, Awaitable, Callable
+from typing import Any, Awaitable, Callable, Optional
 
 from .config import Config
+from .utils import Data
 
 class LapisClientError(Exception):
     """Lapis Client 基础异常。"""
@@ -38,12 +39,12 @@ class LapisCommandError(LapisClientError):
 class Response:
     response_type: str
     ok: bool
-    data: dict[str, Any]
+    data: Data
 
     def __init__(self, raw_data: dict[str, Any]):
         self.response_type = raw_data["response_type"]
         self.ok = raw_data["ok"]
-        self.data = raw_data["data"]
+        self.data = Data(raw_data["data"])
 
 class LapisClient:
     """
@@ -74,12 +75,14 @@ class LapisClient:
         self._request_id = 0
         self._pending: dict[int, asyncio.Future] = {}
 
-        self._reader_task: asyncio.Task | None = None
+        self._reader_task: asyncio.Task[None] | None = None
 
         self._connected = asyncio.Event()
         self._handshaked = asyncio.Event()
 
         self._closing = False
+        # True 表示断线由 close() 主动发起（非被动断线）
+        self._user_closing = False
 
         # Java → Python 的主动消息处理器。
         #
@@ -91,6 +94,20 @@ class LapisClient:
             Callable[[dict[str, Any]], Awaitable[None]]
             | None
         ) = None
+
+    # --------------------------------------------------------
+    # 向 Runtime 暴露的只读属性，用于保活 / 重连决策
+    # --------------------------------------------------------
+
+    @property
+    def reader_task(self) -> Optional[asyncio.Task[None]]:
+        """当前运行中的读取循环任务；未连接时为 ``None``。"""
+        return self._reader_task
+
+    @property
+    def is_closing_by_user(self) -> bool:
+        """最近一次连接关闭是否由用户显式调用 :meth:`close` 触发。"""
+        return self._user_closing
 
     # ============================================================
     # Connection
@@ -111,6 +128,7 @@ class LapisClient:
             return
 
         self._closing = False
+        self._user_closing = False
 
         try:
             self.reader, self.writer = await asyncio.open_connection(
@@ -120,8 +138,12 @@ class LapisClient:
 
         except OSError as e:
             raise LapisConnectionError(
-                f"Failed to connect to "
-                f"{self.host}:{self.port}"
+                "Failed to connect to "
+                f"{self.host}:{self.port}.\n"
+                "         Troubleshooting checklist:\n"
+                "           1. Is the Minecraft server (with lapis-plugin) running?\n"
+                "           2. Are the host/port in Config / config.toml correct?\n"
+                "           3. Is the port reachable (firewall / security group)?"
             ) from e
 
         self._connected.set()
@@ -134,6 +156,14 @@ class LapisClient:
         try:
             await self.handshake()
 
+        except LapisCommandError:
+            # handshake 返回 ok=false：几乎都是密码不匹配
+            await self.close()
+            raise LapisConnectionError(
+                "Handshake rejected by Java bridge — "
+                "SERVER_PASSWORD likely does not match lapis-plugin config."
+            ) from None
+
         except Exception:
             await self.close()
             raise
@@ -143,6 +173,7 @@ class LapisClient:
         主动关闭连接。
         """
 
+        self._user_closing = True
         self._closing = True
 
         self._connected.clear()
