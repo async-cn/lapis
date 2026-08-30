@@ -1,0 +1,321 @@
+{
+  "player": {
+    "uuid": "60431bda-ed9b-31f0-a9c5-caf3a9c88ab9",
+    "name": "Asyncio_",
+    "nbt": {
+      "Brain": {
+        "memories": {}
+      },
+      "HurtByTimestamp": 1135,
+      "bukkit": {
+        "newLevel": 0,
+        "newTotalExp": 0,
+        "newExp": 0,
+        "firstPlayed": 1788077875764,
+        "lastKnownName": "Asyncio_",
+        "keepLevel": 0,
+        "expToDrop": 0,
+        "lastPlayed": 1788099426192
+      },
+      "SleepTimer": 0,
+      "Purpur.TPSBar": 0,
+      "Invulnerable": 0,
+      "AbsorptionAmount": 0,
+      "abilities": {
+        "walkSpeed": 0.1,
+        "instabuild": 0,
+        "mayfly": 0,
+        "invulnerable": 0,
+        "mayBuild": 1,
+        "flying": 0,
+        "flySpeed": 0.05
+      },
+      "recipeBook": {
+        "recipes": [
+          "minecraft:light_gray_concrete_powder",
+          "minecraft:birch_boat",
+          "minecraft:green_concrete_powder",
+          "minecraft:iron_nugget_from_blasting",
+          "minecraft:spruce_planks",
+          "minecraft:blue_concrete_powder",
+          "minecraft:bamboo_raft",
+          "minecraft:charcoal",
+          "minecraft:wooden_spear",
+          "minecraft:black_concrete_powder",
+          "minecraft:purple_concrete_powder",
+          "minecraft:spruce_boat",
+          "minecraft:wooden_hoe",
+          "minecraft:sandstone",
+          "minecraft:red_concrete_powder",
+          "minecraft:iron_nugget_from_smelting",
+          "minecraft:stick_from_bamboo_item",
+          "minecraft:magenta_concrete_powder",
+          "minecraft:wooden_axe",
+          "minecraft:brown_concrete_powder",
+          "minecraft:spruce_wood",
+          "minecraft:orange_concrete_powder",
+          "minecraft:bamboo_block",
+          "minecraft:wooden_sword",
+          "minecraft:pink_concrete_powder",
+          "minecraft:tnt",
+          "minecraft:dark_oak_boat",
+          "minecraft:mangrove_boat",
+          "minecraft:jungle_boat",
+          "minecraft:light_blue_concrete_powder",
+          "minecraft:wooden_shovel",
+          "minecraft:yellow_concrete_powder",
+          "minecraft:scaffolding",
+          "minecraft:chest",
+          "minecraft:gray_concrete_powder",
+          "minecraft:crafting_table",
+          "minecraft:campfire",
+          "minecraft:cyan_concrete_powder",
+          "minecraft:firework_rocket_simple",
+          "minecraft:white_concrete_powder",
+          "minecraft:ladder",
+          "minecraft:cherry_boat",
+          "minecraft:lime_concrete_powder",
+          "minecraft:oak_boat",
+          "minecraft:wooden_pickaxe",
+          "minecraft:pale_oak_boat",
+          "minecraft:acacia_boat",
+          "minecraft:glass"
+        ],
+        "toBeDisplayed": [
+          "minecraft:light_gray_concrete_powder",
+          "minecraft:birch_boat",
+          "minecraft:green_concrete_powder",
+          "minecraft:iron_nugget_from_blasting",
+          "minecraft:spruce_planks",
+          "minecraft:blue_concrete_powder",
+          "minecraft:bamboo_raft",
+          "minecraft:charcoal",
+          "minecraft:wooden_spear",
+          "minecraft:black_concrete_powder",
+          "minecraft:purple_concrete_powder",
+          "minecraft:spruce_boat",
+          "minecraft:wooden_hoe",
+          "minecraft:sandstone",
+          "minecraft:red_concrete_powder",
+          "minecraft:iron_nugget_from_smelting",
+          "minecraft:stick_from_bamboo_item",
+          "minecraft:magenta_concrete_powder",
+          "minecraft:wooden_axe",
+          "minecraft:brown_concrete_powder",
+          "minecraft:spruce_wood",
+          "minecraft:orange_concrete_powder",
+          "minecraft:bamboo_block",
+          "minecraft:wooden_sword",
+          "minecraft:pink_concrete_powder",
+          "minecraft:tnt",
+          "minecraft:dark_oak_boat",
+          "minecraft:mangrove_boat",
+          "minecraft:jungle_boat",
+          "minecraft:light_blue_concrete_powder",
+          "minecraft:wooden_shovel",
+          "minecraft:yellow_concrete_powder",
+          "minecraft:scaffolding",
+          "minecraft:chest",
+          "minecraft:gray_concrete_powder",
+          "minecraft:crafting_table",
+          "minecraft:campfire",
+          "minecraft:cyan_concrete_powder",
+          "minecraft:firework_rocket_simple",
+          "minecraft:white_concrete_powder",
+          "minecraft:ladder",
+          "minecraft:cherry_boat",
+          "minecraft:lime_concrete_powder",
+          "minecraft:oak_boat",
+          "minecraft:wooden_pickaxe",
+          "minecraft:pale_oak_boat",
+          "minecraft:acacia_boat",
+          "minecraft:glass"
+        ]
+      },
+      "WorldUUIDMost": 8384182766401438876,
+      "XpTotal": 23,
+      "Spigot.ticksLived": 115660,
+      "UUID": [
+        1615010778,
+        -308596240,
+        -1446655245,
+        -1446475079
+      ],
+      "Purpur.RamBar": 0,
+      "Bukkit.updateLevel": 2,
+      "ignore_fall_damage_from_current_explosion": 0,
+      "equipment": {
+        "chest": {
+          "count": 1,
+          "id": "minecraft:elytra"
+        }
+      },
+      "fall_distance": 0,
+      "Air": 300,
+      "warden_spawn_tracker": {
+        "warning_level": 0,
+        "ticks_since_last_warning": 7651,
+        "cooldown_ticks": 0
+      },
+      "Score": 23,
+      "Pos": [
+        196.39528172852576,
+        64,
+        -300.9888610013341
+      ],
+      "previousPlayerGameType": 1,
+      "EnderItems": [],
+      "XpP": 0.63636374,
+      "spawn_extra_particles_on_fall": 0,
+      "DataVersion": 4671,
+      "SelectedItemSlot": 4,
+      "HurtTime": 0,
+      "Inventory": [
+        {
+          "count": 42,
+          "Slot": 0,
+          "id": "minecraft:dirt"
+        },
+        {
+          "count": 15,
+          "Slot": 1,
+          "id": "minecraft:sand"
+        },
+        {
+          "count": 1,
+          "Slot": 2,
+          "id": "minecraft:wheat_seeds"
+        },
+        {
+          "count": 56,
+          "Slot": 3,
+          "id": "minecraft:bamboo"
+        },
+        {
+          "components": {
+            "minecraft:damage": 12
+          },
+          "count": 1,
+          "Slot": 4,
+          "id": "minecraft:iron_sword"
+        },
+        {
+          "components": {
+            "minecraft:damage": 22
+          },
+          "count": 1,
+          "Slot": 5,
+          "id": "minecraft:iron_axe"
+        },
+        {
+          "count": 1,
+          "Slot": 6,
+          "id": "minecraft:shears"
+        },
+        {
+          "count": 1,
+          "Slot": 7,
+          "id": "minecraft:stick"
+        },
+        {
+          "count": 2,
+          "Slot": 8,
+          "id": "minecraft:rotten_flesh"
+        },
+        {
+          "count": 2,
+          "Slot": 9,
+          "id": "minecraft:gunpowder"
+        },
+        {
+          "count": 1,
+          "Slot": 10,
+          "id": "minecraft:arrow"
+        },
+        {
+          "count": 2,
+          "Slot": 11,
+          "id": "minecraft:spruce_log"
+        }
+      ],
+      "WorldUUIDLeast": -7850827598040171972,
+      "foodTickTimer": 0,
+      "Paper.Origin": [
+        86.5,
+        73,
+        -312.5
+      ],
+      "FallFlying": 0,
+      "PortalCooldown": 0,
+      "Purpur.CompassBar": 0,
+      "DeathTime": 0,
+      "XpSeed": -890344446,
+      "Paper.OriginWorld": [
+        1952094670,
+        55526556,
+        -1827913243,
+        570128956
+      ],
+      "playerGameType": 0,
+      "seenCredits": 0,
+      "Motion": [
+        0,
+        -0.0784000015258789,
+        0
+      ],
+      "Health": 14,
+      "foodSaturationLevel": 0,
+      "Purpur.ShouldBurnInDay": 0,
+      "Paper.SpawnReason": "DEFAULT",
+      "OnGround": 1,
+      "Dimension": "minecraft:overworld",
+      "XpLevel": 2,
+      "Rotation": [
+        -174.00208,
+        61.5002
+      ],
+      "current_impulse_context_reset_grace_time": 0,
+      "Fire": -20,
+      "Paper": {
+        "LastLogin": 1788099349588,
+        "LastSeen": 1788099426192
+      },
+      "attributes": [
+        {
+          "id": "minecraft:waypoint_transmit_range",
+          "base": 60000000
+        },
+        {
+          "id": "minecraft:attack_speed",
+          "base": 4
+        },
+        {
+          "id": "minecraft:block_interaction_range",
+          "base": 4.5
+        },
+        {
+          "id": "minecraft:max_health",
+          "base": 20
+        },
+        {
+          "id": "minecraft:oxygen_bonus",
+          "base": 0
+        },
+        {
+          "id": "minecraft:attack_damage",
+          "base": 1
+        },
+        {
+          "id": "minecraft:movement_speed",
+          "base": 0.10000000149011612
+        },
+        {
+          "id": "minecraft:entity_interaction_range",
+          "base": 3
+        }
+      ],
+      "foodLevel": 16,
+      "foodExhaustionLevel": 1.4925077
+    }
+  }
+}

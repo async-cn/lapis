@@ -1,19 +1,57 @@
-[LAPIS]
-VERSION = "0.0.9" # Do not change this
+# ============================================================
+# Lapis 默认配置文件
+# ============================================================
+# 本文件中所有字段均为可选：缺失字段会沿用 config.py 中的内置默认值。
+#
+# 支持两种书写风格（可混用，TOML 中的值优先生效）：
+#   1) 顶层平铺风格（推荐，与 Config.XXX 类属性一一对应）
+#      例如：SERVER_ADDR = "mc.example.com"
+#   2) 分组嵌套风格（与旧版 lapis-plugin / lapis 示例保持一致）
+#      例如：[SERVER]  ADDR = "mc.example.com"
+#
+# 可通过环境变量 LAPIS_CONFIG_PATH 指定其他 TOML 配置文件路径。
+# ============================================================
+
+# ---- 基础 ----
+# SDK 版本号（一般不需要修改，仅供诊断用）
+VERSION = "0.1.0"
+
+# 调试模式：开启后 debug() 日志才会打印；生产环境请关闭
 DEBUG = false
 
-[LOADER]
-PACKAGES_PATH = "{lapis_dir}/../packages"
+# Loader 中相对于 lapis 包目录查找 packages 的路径（供未来扩展）
+LOADER_PACKAGES_DIR = "../../../packages"
 
-[SERVER]
-ADDR = "localhost"
-PORT = 9331
-PASSWORD = "pw114514"
+# 数据库文件所在目录（相对于当前工作目录；不存在会自动创建）
+DATABASE_DIR = "./databases"
 
-[CLIENT]
-MAX_PACKET_SIZE = 0xffffff # 16 * 1024 * 1024
+# ---- 本地化 ----
+# 默认语言：用于 lang.get_display_name 等名称查找
+# 取值须对应 assets/lang/ 下的语言目录名（如 "zh_cn" / "en_us"）
+DEFAULT_LANG = "zh_cn"
 
+# ---- Java Bridge 连接 ----
+# lapis-plugin 监听的主机 / 端口
+SERVER_ADDR = "localhost"
+SERVER_PORT = 9331
+
+# ⚠️ 生产环境务必修改默认密码！
+SERVER_PASSWORD = "pw114514"
+
+# 单个 TCP 包的最大字节数（默认 16MB，一般无需调整）
+MAX_PACKET_SIZE = 0xffffff
+
+# 自动重连：最多尝试重连次数（0 表示不自动重连）
+MAX_RECONNECT_ATTEMPTS = 5
+
+# 自动重连：指数退避基础延迟（秒）
+# 实际等待时长 = base_delay * (2 ** attempt)，逐次递增
+RECONNECT_BASE_DELAY = 1.0
+
+# ---- 维度映射 ----
+# key 为维度代号（Lapis SDK 内部常量），value 为服务端实际的世界目录名
+# 世界目录名通常对应 Paper 端 server.properties 中的 level-name + 后缀
 [DIMENSIONS]
-OVERWORLD = "world"
-THE_NETHER = "world_the_nether"
-THE_END = "world_the_end"
+overworld  = "world"
+the_nether = "world_nether"
+the_end    = "world_end"
