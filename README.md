@@ -54,7 +54,8 @@ pip install -e .
 pip install lapis-0.1.0-py3-none-any.whl
 ```
 
-安装成功后，查看并修改 `config.toml`，填写自定义密码等关键配置。
+> [!NOTE]
+> 安装成功后，查看并修改 `config.toml`，填写自定义密码等关键配置。
 
 ---
 
