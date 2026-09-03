@@ -507,7 +507,7 @@ def create_player(raw: dict[str, Any]) -> Player:
         顶层含 ``uuid`` / ``name`` / ``nbt``；对缺失键全部容错
         （事件 subscription 可能只回传部分数据）。
         ``inventory`` / ``ender_items`` / ``equipment`` 中的物品字典
-        会自动包装为 :class:`~lapis.utils.Data`。
+        会自动包装为 :class:`lapis.utils.Data`。
     :return: 填充完成的 :class:`Player` 对象。
     """
     nbt: dict[str, Any] = raw.get("nbt") or {}

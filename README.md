@@ -1,6 +1,6 @@
 <div align="center">
     <img src="src/lapis/assets/images/lapis-title.png" height="84" alt="title"><br/><br/>
-    <p>面向 Minecraft 服务端的 Python 开发生态</p>
+    <p>面向 Python 的 Minecraft 开发生态</p>
     <p>
         <a href="README.md">简体中文</a> |
         <a href="README_EN.md">English</a> |
