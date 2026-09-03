@@ -95,7 +95,7 @@ from lapis.log import *
 from .tool_reminder import on_blockbreak
 from .tnt_blocker import on_blockplace
 
-init("my_package")
+init("my_package", "MyPackage")
 
 on_blockbreak.register()
 on_blockplace.register()
@@ -147,10 +147,6 @@ from lapis.lang import get_item_name
         Eq("block.id", "minecraft:bamboo"),
         Eq("block.id", "minecraft:cobweb")
     ),
-    [
-        "player",
-        "block"
-    ],
     auto_register=False
 )
 async def on_blockbreak(event: Event):
@@ -226,7 +222,7 @@ Lapis 由两部分协同工作：
 ## 帮助与支持
 
 > [!IMPORTANT]
-> 加入Lapis 开发者社区 QQ 群 [806492643](https://qm.qq.com/q/Uu4mGaTaee)
+> 加入 Lapis 开发者社区 QQ 群 [806492643](https://qm.qq.com/q/Uu4mGaTaee)
 
 ---
 
