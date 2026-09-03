@@ -36,6 +36,14 @@
 
 以下安装方式二选一：
 
+#### 从源码安装（推荐）
+
+```bash
+git clone https://github.com/async-cn/lapis.git
+cd lapis
+pip install -e .
+```
+
 #### 从whl文件安装
 
 从 [Releases](https://github.com/async-cn/lapis/releases) 页面下载whl文件，然后执行安装命令：
@@ -44,14 +52,6 @@
 
 ```bash
 pip install lapis-0.1.0-py3-none-any.whl
-```
-
-#### 从源码安装
-
-```bash
-git clone https://github.com/async-cn/lapis.git
-cd lapis
-pip install -e .
 ```
 
 安装成功后，查看并修改 `config.toml`，填写自定义密码等关键配置。
@@ -176,6 +176,9 @@ python -m lapis run my_package
 ```
 
 ### FastShop
+
+> [!NOTE]
+> 此示例包已不适用于最新的 Lapis SDK
 
 FastShop 是一款仿制 QuickShop 插件的商店示例包，你可以点击[此处](https://github.com/async-cn/fastshop)前往获取。仅用于功能演示，请勿用于生产环境实装或倒卖收费等其他用途。
 
