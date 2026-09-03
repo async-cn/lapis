@@ -153,15 +153,16 @@ from lapis.lang import get_item_name
 async def on_blockbreak(event: Event):
     player = event.get_player()
     block = event.get_block()
-    tool = player.selected_item.get("id")
+    tool = player.selected_item
+    tool_name = tool.get("id") if tool else "手"
     is_bamboo:bool = block.block_id == "minecraft:bamboo"
     best_tool = "剑" if is_bamboo else "剑或剪刀"
     if (
-            (is_bamboo and "sword" not in tool)
-            or (not is_bamboo and "sword" not in tool and tool != "minecraft:shears")
+            (is_bamboo and "sword" not in tool_name)
+            or (not is_bamboo and "sword" not in tool_name and tool_name != "minecraft:shears")
     ):
         await player.send_message(
-            f"你正在使用 §e{get_item_name(tool)}§r 破坏 §e{get_item_name(block.block_id)}§r；\n"
+            f"你正在使用 §e{get_item_name(tool_name)}§r 破坏 §e{get_item_name(block.block_id)}§r；\n"
             f"温馨提示：该方块的最适破坏工具为§e{best_tool}§r。"
         )
 ```
