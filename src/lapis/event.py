@@ -11,7 +11,7 @@ from .log import *
 from .server_message import message_handler, register_message_handler, ServerMessageHandler
 from .utils import Data, dict_trans
 
-from .player import Player, create_player
+from .player import Player, create_player, create_target_player
 from .block import create_block
 
 if TYPE_CHECKING:
@@ -142,12 +142,18 @@ class Event:
         else:
             self.proxy: bool = False
             self.event_id = "00000000-0000-0000-0000-000000000000"
-    def get_target_player(self) -> Player:
-        return Player(self.data.get("player.uuid"))
-    def get_player(self) -> Player:
+
+    @property
+    def target_player(self) -> Player:
+        return create_target_player(self.data.get("player.uuid"))
+
+    @property
+    def player(self) -> Player:
         """从事件数据中的完整 player 字典构造 Player（含 name/nbt 快照属性）。"""
-        return create_player(self.data.get("player") or {})
-    def get_block(self) -> Block:
+        return create_player(self.data.get("player"))
+
+    @property
+    def block(self) -> Block:
         return create_block(
             **dict_trans(self.data.get("block"), {
                 "id": "block_id",

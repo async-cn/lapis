@@ -103,7 +103,7 @@ on_blockplace.register()
 
 @on("PlayerJoin")
 async def hello(event):
-    player = event.get_target_player()
+    player = event.target_player
     await player.send_message(
         f"§a欢迎加入本服务器！"
     )
@@ -129,7 +129,7 @@ import asyncio
     auto_register=False
 )
 async def on_blockplace(event: Event):
-    asyncio.create_task(event.get_target_player().send_message(
+    asyncio.create_task(event.target_player.send_message(
         "§c本服务器禁止放置tnt，已取消放置！"
     ))
     remind(f"玩家 {event.data.get("player.name")} 尝试放置TNT！")
@@ -151,8 +151,8 @@ from lapis.lang import get_item_name
     auto_register=False
 )
 async def on_blockbreak(event: Event):
-    player = event.get_player()
-    block = event.get_block()
+    player = event.player
+    block = event.block
     tool = player.selected_item
     tool_name = get_item_name(tool.get("id")) if tool else "手"
     is_bamboo:bool = block.block_id == "minecraft:bamboo"
