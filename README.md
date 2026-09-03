@@ -222,7 +222,7 @@ Lapis 由两部分协同工作：
 ## 帮助与支持
 
 > [!IMPORTANT]
-> 加入 Lapis 开发者社区 QQ 群 [806492643](https://qm.qq.com/q/Uu4mGaTaee)
+> 加入 Lapis 开发者社区 QQ 群 [806492643](https://qm.qq.com/q/Uu4mGaTaee) 或论坛 [Lapis World](https://www.lapis.world)
 
 ---
 
