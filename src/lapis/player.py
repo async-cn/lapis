@@ -140,7 +140,16 @@ class Player:
         self.abilities = abilities if abilities is not None else {}
         self.attributes = attributes if attributes is not None else []
 
-        self.selected_item = self.inventory[self.selected_item_slot] if self.selected_item_slot is not None else None
+        self.selected_item = None
+
+        if self.selected_item_slot is not None:
+            for item in self.inventory: # 近似O(1)复杂度，无需二分优化
+                if item.get('Slot') == self.selected_item_slot:
+                    self.selected_item = item
+                    break
+                elif item.get('Slot') > self.selected_item_slot:
+                    break
+
 
     @property
     def pos(self) -> EntityPos:

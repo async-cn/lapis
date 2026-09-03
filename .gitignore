@@ -49,3 +49,6 @@ htmlcov/
 .tox/
 .mypy_cache/
 .ruff_cache/
+
+# ===== 本地 =====
+src/lapis/config.local.toml

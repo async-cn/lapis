@@ -16,6 +16,7 @@ MessageHandlerT = Callable[["ServerMessage"], Awaitable[bool | None] | bool | No
 @dataclass
 class LapisContext:
     package_name: str
+    package_display_name: str
     client: LapisClient | None
     event_registry: EventRegistry | None
     database: Database | None

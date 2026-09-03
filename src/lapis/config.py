@@ -1,15 +1,23 @@
 """Lapis 配置模块。
 
 配置来源（优先级从高到低）：
-    1. ``CONFIG_PATH`` 指向的 TOML 文件中的显式值；
-    2. 本模块内定义的默认值。
+    1. ``config.local.toml`` 中的显式值（覆盖同名配置项）；
+    2. ``CONFIG_PATH`` 指向的 TOML 文件（默认 ``config.toml``）中的显式值；
+    3. 本模块内定义的默认值。
 
 默认情况下，``CONFIG_PATH`` 指向 Lapis 包目录下的 ``config.toml``；
 也可以通过环境变量 ``LAPIS_CONFIG_PATH`` 覆盖。
 
-TOML 支持两种书写风格（可混用），最终都会被归一化到平铺键后再应用：
+若存在 ``config.local.toml``，其中的配置项会覆盖 ``config.toml`` 的同名项。
+``config.local.toml`` 的搜索位置（按顺序）：
 
-* **平铺风格（推荐）**：
+    1. 当前工作目录（CWD）；
+    2. 配置文件目录（``CONFIG_PATH`` 所在目录）。
+
+对于嵌套表 ``[DIMENSIONS]``，采用深度合并：local 中的子键覆盖默认值对应
+子键，其余子键保留。平铺标量键直接覆盖。
+
+TOML 仅支持平铺键风格（与 ``Config.XXX`` 类属性一一对应），例如：
 
   .. code-block:: toml
 
@@ -20,16 +28,8 @@ TOML 支持两种书写风格（可混用），最终都会被归一化到平铺
       [DIMENSIONS]
       overworld = "world"
 
-* **嵌套分组风格（兼容 lapis-plugin 示例）**：
-
-  .. code-block:: toml
-
-      [SERVER]
-      ADDR = "127.0.0.1"
-      PASSWORD = "your-secret"
-
-      [CLIENT]
-      MAX_PACKET_SIZE = 16777215
+可使用 ``python -m lapis debug generate-local-config`` 生成无注释的
+``config.local.toml`` 模板以便修改。
 
 使用方式与原实现保持一致，仍然通过类属性访问::
 
@@ -90,6 +90,9 @@ else:
 
 _PACKAGE_DIR = Path(__file__).resolve().parent
 """Lapis 包所在目录（即本文件所在目录）。"""
+
+PACKAGE_DIR: Path = _PACKAGE_DIR
+"""Lapis 包所在目录（公开，供 CLI 等模块使用）。"""
 
 _ENV_CONFIG_PATH = os.environ.get("LAPIS_CONFIG_PATH")
 """可选的环境变量覆盖。"""
@@ -158,60 +161,26 @@ def _coerce_bool(value: Any) -> bool:
     raise TypeError(f"Cannot coerce {type(value).__name__} to bool")
 
 
-# ---- TOML 嵌套 table → 平铺字段映射 ------------------------------------------
-# 例如 [SERVER] ADDR = "x"  →  SERVER_ADDR = "x"
-_NESTED_GROUP_MAP: Dict[str, Dict[str, str]] = {
-    "SERVER": {
-        "ADDR": "SERVER_ADDR",
-        "PORT": "SERVER_PORT",
-        "PASSWORD": "SERVER_PASSWORD",
-    },
-    "CLIENT": {
-        "MAX_PACKET_SIZE": "MAX_PACKET_SIZE",
-    },
-    "LOADER": {
-        "PACKAGES_PATH": "LOADER_PACKAGES_DIR",
-    },
-    "LAPIS": {
-        "VERSION": "VERSION",
-        "DEBUG": "DEBUG",
-    },
-}
-
-
 def _normalize_toml_data(raw: Dict[str, Any]) -> Dict[str, Any]:
-    """将嵌套分组风格归一化为平铺字段字典（平铺风格原样保留）。
+    """将 TOML 数据归一化为平铺字段字典。
 
-    维度表 ``DIMENSIONS`` 保持原样单独处理。
+    仅支持平铺键风格；``[DIMENSIONS]`` 表单独保留给维度合并流程。
+    其他 table（如旧版分组嵌套风格 ``[SERVER]``）不再支持，会被忽略。
     """
 
     normalized: Dict[str, Any] = {}
 
     for key, value in raw.items():
         if isinstance(value, dict):
-            # 分组 table
-            if key in _NESTED_GROUP_MAP:
-                sub_fields = _NESTED_GROUP_MAP[key]
-                for sub_key, sub_value in value.items():
-                    flat_key = sub_fields.get(str(sub_key).upper())
-                    if flat_key is None:
-                        # 未识别的子字段：尝试直接拼接（如 [DATABASE] PATH → DATABASE_PATH）
-                        flat_key = f"{key.upper()}_{str(sub_key).upper()}"
-                    normalized[flat_key] = sub_value
-            elif key.upper() == "DIMENSIONS":
+            if key.upper() == "DIMENSIONS":
                 # 保留给 dimensions 合并流程，键全部小写化
                 normalized["DIMENSIONS"] = {
                     str(k).lower(): str(v) for k, v in value.items()
                 }
-            # 其他未知 table 忽略（避免用户写错导致 crash）
+            # 其他 table 忽略（嵌套分组风格已移除支持）
         else:
-            # 顶层平铺键：按原样应用；DIMENSIONS 在此场景为非法，忽略
-            if str(key).upper() == "DIMENSIONS" and isinstance(value, dict):
-                normalized["DIMENSIONS"] = {
-                    str(k).lower(): str(v) for k, v in value.items()
-                }
-            else:
-                normalized[str(key).upper()] = value
+            # 顶层平铺键：按原样应用
+            normalized[str(key).upper()] = value
 
     return normalized
 
@@ -267,6 +236,48 @@ def _apply_overrides(
         merged = dict(cls.DIMENSIONS)
         merged.update({str(k): str(v) for k, v in dimensions.items()})
         cls.DIMENSIONS = merged
+
+
+# ============================================================
+# config.local.toml 覆盖加载
+# ============================================================
+
+def _deep_merge_toml(
+    base: Dict[str, Any],
+    override: Dict[str, Any],
+) -> Dict[str, Any]:
+    """深度合并：``override`` 覆盖 ``base`` 中的同名项。
+
+    标量直接覆盖；dict（如 ``[DIMENSIONS]``）递归合并子键，
+    即 local 中的子键覆盖 base 对应子键，其余子键保留。
+    """
+
+    result: Dict[str, Any] = dict(base)
+    for key, value in override.items():
+        if (
+            key in result
+            and isinstance(result[key], dict)
+            and isinstance(value, dict)
+        ):
+            result[key] = _deep_merge_toml(result[key], value)
+        else:
+            result[key] = value
+    return result
+
+
+def _find_local_config() -> Path | None:
+    """查找 ``config.local.toml``：先当前工作目录，后配置文件目录。
+
+    返回第一个找到的文件路径；都未找到则返回 ``None``。
+    """
+
+    cwd_local = Path.cwd() / "config.local.toml"
+    if cwd_local.is_file():
+        return cwd_local
+    dir_local = CONFIG_PATH.parent / "config.local.toml"
+    if dir_local.is_file():
+        return dir_local
+    return None
 
 
 # ============================================================
@@ -328,11 +339,21 @@ def _warn_if_default_password() -> None:
 
 def _initialize_from_file() -> None:
     toml_data = _load_toml_file(CONFIG_PATH)
+    local_path = _find_local_config()
+    if local_path is not None:
+        local_data = _load_toml_file(local_path)
+        if local_data:
+            # local 覆盖默认 config.toml 中的同名配置项
+            toml_data = _deep_merge_toml(toml_data, local_data)
     if toml_data:
         _apply_overrides(Config, toml_data)
         Config.CONFIG_FILE_LOADED = True
     # 即便文件不存在，也同步一下最终使用的路径，便于排查
-    Config.CONFIG_FILE_USED = str(CONFIG_PATH)
+    Config.CONFIG_FILE_USED = (
+        f"{CONFIG_PATH} (+{local_path})"
+        if local_path is not None
+        else str(CONFIG_PATH)
+    )
 
     # 配置加载结束后再检查密码：用户可能在 TOML 中改了
     _warn_if_default_password()

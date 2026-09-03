@@ -3,11 +3,13 @@
 # ============================================================
 # 本文件中所有字段均为可选：缺失字段会沿用 config.py 中的内置默认值。
 #
-# 支持两种书写风格（可混用，TOML 中的值优先生效）：
-#   1) 顶层平铺风格（推荐，与 Config.XXX 类属性一一对应）
-#      例如：SERVER_ADDR = "mc.example.com"
-#   2) 分组嵌套风格（与旧版 lapis-plugin / lapis 示例保持一致）
-#      例如：[SERVER]  ADDR = "mc.example.com"
+# 仅支持顶层平铺键风格（与 Config.XXX 类属性一一对应），
+# 例如：SERVER_ADDR = "mc.example.com"
+# [DIMENSIONS] 为特殊的维度映射表，单独保留支持。
+#
+# 若存在 config.local.toml，其中的同名配置项会覆盖本文件的值；
+# 搜索位置：当前工作目录（CWD）优先，其次配置文件目录。
+# 可使用 `python -m lapis debug generate-local-config` 生成无注释模板。
 #
 # 可通过环境变量 LAPIS_CONFIG_PATH 指定其他 TOML 配置文件路径。
 # ============================================================

@@ -12,21 +12,18 @@ from .config import Config
 from .server_message import init_message_dispatcher
 from .database import Database
 
-# ---- 领域对象 & 顶层命令模块（方便用户 `import lapis; lapis.commands.xxx`）----
-from . import commands as commands  # noqa: E402
-from .player import Player, create_player  # noqa: E402
-from .block import Block, set_block, get_block  # noqa: E402
-from .entity import Entity, get_entity  # noqa: E402
-
 _runtimes: dict[str, Runtime] = {}
 
 
-def init(package_name: str) -> LapisContext:
+def init(package_name: str, display_name: str | None = None) -> LapisContext:
     """创建当前 Package 的 Runtime + Context，并将其设为活动上下文。
 
     :returns: 新创建的 :class:`LapisContext`。
     :raises RuntimeError: 同一 ``package_name`` 已在当前进程中初始化。
     """
+
+    if display_name is None:
+        display_name = package_name
 
     if package_name in _runtimes:
         raise RuntimeError(
@@ -36,6 +33,7 @@ def init(package_name: str) -> LapisContext:
     runtime: Runtime = Runtime(package_name)
     context = LapisContext(
         package_name=package_name,
+        package_display_name=display_name,
         client=LapisClient(Config.SERVER_ADDR, Config.SERVER_PORT, package_name),
         event_registry=EventRegistry(),
         database=Database(package_name),

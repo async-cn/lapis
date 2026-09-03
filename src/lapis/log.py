@@ -156,9 +156,9 @@ def log(msg: Any, level: str = "INFO") -> None:
 
     try:
         from .runtime import get_context as _ctx
-        package = _ctx().package_name
+        package = _ctx().package_display_name
     except Exception:
-        package = "lapis"
+        package = "Unknown Package"
 
     text = str(msg)
     ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")

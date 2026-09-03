@@ -16,7 +16,8 @@ from .log import debug, info, error
 from .config import Config
 
 
-LOADER_PACKAGE_NAME = "MainLoader"
+LOADER_PACKAGE_NAME = "__mainloader__"
+LOADER_PACKAGE_DISPLAY_NAME = "Main Loader"
 
 
 # ============================================================
@@ -43,6 +44,7 @@ def init_loader_runtime() -> LapisContext:
 
     context = LapisContext(
         package_name=LOADER_PACKAGE_NAME,
+        package_display_name=LOADER_PACKAGE_DISPLAY_NAME,
         client=None,
         database=None,
         event_registry=None,
@@ -293,8 +295,9 @@ async def run_package(
         raise AttributeError(
             f"Package {module.__name__!r} does not define a `main()` coroutine.\n"
             "        Every Lapis package must expose:\n"
+            "            from lapis import start"
             "            async def main():\n"
-            "                await lapis.start()  # usually inside"
+            "                await start()  # usually inside"
         )
 
     if not callable(main):
@@ -479,6 +482,75 @@ class Loader:
 # CLI
 # ============================================================
 
+def _strip_inline_comment(line: str) -> str:
+    """剥离单行 TOML 行内注释（``#`` 之后），保留字符串字面量内的 ``#``。"""
+
+    result = []
+    i, n = 0, len(line)
+    in_basic = False    # "..."
+    in_literal = False  # '...'
+    while i < n:
+        ch = line[i]
+        if in_basic:
+            result.append(ch)
+            if ch == "\\":
+                if i + 1 < n:
+                    result.append(line[i + 1])
+                    i += 2
+                    continue
+            elif ch == '"':
+                in_basic = False
+            i += 1
+            continue
+        if in_literal:
+            result.append(ch)
+            if ch == "'":
+                in_literal = False
+            i += 1
+            continue
+        # normal
+        if ch == "#":
+            break
+        if ch == '"':
+            in_basic = True
+        elif ch == "'":
+            in_literal = True
+        result.append(ch)
+        i += 1
+    return "".join(result)
+
+
+def _strip_toml_comments(text: str) -> str:
+    """移除 TOML 注释行与行内注释，保留所有配置项与结构。"""
+
+    output = []
+    for line in text.split("\n"):
+        cleaned = _strip_inline_comment(line).rstrip()
+        if cleaned:
+            output.append(cleaned)
+    return "\n".join(output) + "\n"
+
+
+def generate_local_config(to_cwd: bool = False) -> int:
+    """以包目录下 ``config.toml`` 为模板生成无注释的 ``config.local.toml``。
+
+    :param to_cwd: 为 ``True`` 时写入当前工作目录，否则写入 Lapis 包目录。
+    """
+
+    from .config import PACKAGE_DIR
+    template = PACKAGE_DIR / "config.toml"
+    if not template.is_file():
+        error(f"Template config.toml not found: {template}")
+        return 1
+    text = template.read_text(encoding="utf-8")
+    stripped = _strip_toml_comments(text)
+    out_dir = Path.cwd() if to_cwd else PACKAGE_DIR
+    out_path = out_dir / "config.local.toml"
+    out_path.write_text(stripped, encoding="utf-8")
+    print(f"Generated: {out_path}")
+    return 0
+
+
 def _build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="python -m lapis",
@@ -493,6 +565,8 @@ def _build_arg_parser() -> argparse.ArgumentParser:
             "  python -m lapis check ./my_package -v\n"
             "  python -m lapis run ./my_package\n"
             "  python -m lapis run ./my_package --debug\n"
+            "  python -m lapis debug generate-local-config\n"
+            "  python -m lapis debug generate-local-config here\n"
         ),
     )
     parser.add_argument(
@@ -549,6 +623,33 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         help="Print detailed per-check results.",
     )
 
+    # ---- `debug` ----
+    p_debug = sub.add_parser(
+        "debug",
+        help="Debug / maintenance utilities.",
+    )
+    debug_sub = p_debug.add_subparsers(
+        dest="debug_command",
+        metavar="<debug-command>",
+        required=True,
+    )
+    # ---- `debug generate-local-config` ----
+    p_gen = debug_sub.add_parser(
+        "generate-local-config",
+        help=(
+            "Generate a comment-free config.local.toml from the bundled "
+            "config.toml template. Default output: lapis package dir; "
+            "pass 'here' to write to the current working directory."
+        ),
+    )
+    p_gen.add_argument(
+        "where",
+        nargs="?",
+        choices=["here"],
+        default=None,
+        help="If 'here', write config.local.toml to the current working directory.",
+    )
+
     return parser
 
 
@@ -597,6 +698,13 @@ def main(argv: list[str] | None = None) -> int:
         for i, p in enumerate(problems, 1):
             print(f"  {i}. {p}")
         return 1
+
+    # ---- debug ----
+    if args.command == "debug":
+        if args.debug_command == "generate-local-config":
+            return generate_local_config(to_cwd=(args.where == "here"))
+        parser.error(f"Unknown debug command: {args.debug_command!r}")
+        return 2
 
     # argparse 应该已经拦截未知子命令，这里兜底
     parser.error(f"Unknown subcommand: {args.command!r}")
