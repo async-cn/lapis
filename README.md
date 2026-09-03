@@ -103,9 +103,9 @@ on_blockplace.register()
 
 @on("PlayerJoin")
 async def hello(event):
-    player = event.target_player
+    player = event.player
     await player.send_message(
-        f"§a欢迎加入本服务器！"
+        f"§a玩家 §b{player.name}§a, 欢迎加入本服务器！"
     )
 
 async def main():
