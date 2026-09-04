@@ -191,19 +191,21 @@ class Player:
     # Messaging / Input
     # --------------------------------------------------------
 
-    async def send_message(self, message: str | dict[str, Any]) -> bool:
+    async def send_message(self, message: str | dict[str, Any], mini: bool = False) -> bool:
         """向玩家发送消息。
 
         :param message: 字符串表示纯文本；字典表示 Minecraft 文本组件。
         :return: Java 端是否成功处理
         """
-        self._assert_concrete()
-        return (await get_context().client.command(
-            "send_message",
-            {
+        data = {
                 "player_uuid": self.uuid,
                 **format_message(message),
-            },
+            }
+        if mini:
+            data["message_type"] = "mini_message"
+        return (await get_context().client.command(
+            "send_message",
+            data
         )).ok
 
     async def ask_input(
